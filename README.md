@@ -142,7 +142,7 @@ Most code moves across with the import alone. What differs:
 | `tightMode: true` | removed | Wrap in a `SizedBox` |
 | `PhotoViewGestureDetectorScope(axis: null)` | `axis` is required | A scope without an axis did nothing |
 | `PhotoViewGallery(..., scaleStateChangedCallback:)` | unchanged | |
-| double tap and pinch zoom towards `basePosition` | they zoom at the touch | [#82], [#394], [#538] |
+| double tap zooms towards `basePosition` | it zooms at the tap | [#82], [#394], [#538] |
 | mouse wheel ignored | wheel zooms, trackpad pans | [#481] |
 | `strictScale` freezes the whole gesture past a limit | the scale clamps, the pan keeps working | |
 | n/a | `enableScrollZoom` | New |

@@ -1,3 +1,9 @@
+## 0.1.1
+
+- Correct the migration table. Only the double tap recenters in photo_view:
+  a pinch updates the scale state through `setInvisibly`, which notifies no
+  listener, so it never reaches the recentering path. The table claimed both.
+
 ## 0.1.0
 
 Initial release.

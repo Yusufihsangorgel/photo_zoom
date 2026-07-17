@@ -2,7 +2,7 @@ name: photo_zoom
 description: >-
   Pan, zoom and rotate images. Double tap and pinch zoom where you touch,
   mouse wheel zooms on desktop, and the gallery swipes between photos.
-version: 0.1.0
+version: 0.1.1
 repository: https://github.com/Yusufihsangorgel/photo_zoom
 
 topics:
