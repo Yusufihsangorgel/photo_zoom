@@ -1,0 +1,26 @@
+name: photo_zoom
+description: >-
+  Pan, zoom and rotate images. Double tap and pinch zoom where you touch,
+  mouse wheel zooms on desktop, and the gallery swipes between photos.
+version: 0.1.0
+repository: https://github.com/Yusufihsangorgel/photo_zoom
+
+topics:
+  - image
+  - zoom
+  - gallery
+  - viewer
+  - gestures
+
+environment:
+  sdk: ^3.8.0
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
