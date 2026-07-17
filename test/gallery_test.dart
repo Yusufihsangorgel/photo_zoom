@@ -296,6 +296,12 @@ void main() {
     });
 
     testWidgets('tears down its own page controller', (tester) async {
+      // The gallery never hands this controller out, so nothing outside can
+      // check on it; the allocation instrumentation is what makes its disposal
+      // observable.
+      final tracker = DisposalTracker<PageController>();
+      addTearDown(tracker.stop);
+
       await pumpGallery(
         tester,
         gallery: PhotoViewGallery.builder(
@@ -305,8 +311,10 @@ void main() {
           ),
         ),
       );
+      expect(tracker.created, hasLength(1));
+
       await tester.pumpWidget(const SizedBox());
-      // A leaked PageController would trip the binding's leak checks here.
+      expect(tracker.leaked, isEmpty);
       expect(tester.takeException(), isNull);
     });
 

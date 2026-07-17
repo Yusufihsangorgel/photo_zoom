@@ -243,6 +243,39 @@ void main() {
       expect(after, offsetCloseTo(before));
     });
 
+    testWidgets('an abandoned double tap does not leave its focal behind', (
+      tester,
+    ) async {
+      // onDoubleTapDown records where the tap landed before the gesture is
+      // settled. If the double tap is then abandoned, that focal must go with
+      // it, or the next thing to move the cycle spends it: a programmatic
+      // change would zoom at a point the user touched some time ago.
+      final scaleStateController = PhotoViewScaleStateController();
+      addTearDown(scaleStateController.dispose);
+      final controller = newController();
+      await pumpPhotoView(
+        tester,
+        controller: controller,
+        scaleStateController: scaleStateController,
+      );
+
+      // Tap once, then let the second tap-down turn into a drag.
+      await tester.tapAt(const Offset(350, 200));
+      await tester.pump(const Duration(milliseconds: 50));
+      final gesture = await tester.startGesture(const Offset(350, 200));
+      await gesture.moveBy(const Offset(0, 80));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(controller.scale, 2, reason: 'the double tap should not have run');
+
+      // A programmatic change has no focal point, so the child returns to its
+      // resting place rather than to where that abandoned tap landed.
+      scaleStateController.scaleState = PhotoViewScaleState.covering;
+      await tester.pumpAndSettle();
+      expect(controller.scale, closeToD(4));
+      expect(controller.position, offsetCloseTo(Offset.zero));
+    });
+
     testWidgets('respects a custom cycle', (tester) async {
       final controller = newController();
       await tester.pumpWidget(
@@ -571,6 +604,42 @@ void main() {
       await tester.pumpAndSettle();
       // A ticker or animation controller left behind would fail the test here.
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('lets go of the image handle it resolved for sizing', (
+      tester,
+    ) async {
+      // The view resolves the provider a second time, on its own, purely to
+      // learn the image's size, and the stream hands every listener its own
+      // ImageInfo to dispose. Holding that one would pin the decoded image for
+      // as long as the view lives.
+      //
+      // Measured against a plain Image on the same provider rather than against
+      // zero: a resolved provider always leaves its completer's own ImageInfo
+      // behind until the cache lets go of it, and that one is not this
+      // package's to dispose. What is being asserted is that the view adds no
+      // leak of its own on top of what the framework already does.
+      Future<int> leakedFor(Widget Function(ImageProvider) build) async {
+        final tracker = DisposalTracker<ImageInfo>();
+        await tester.pumpWidget(
+          harness(child: build(TestImageProvider(image))),
+        );
+        await tester.pump();
+        await tester.pumpWidget(const SizedBox());
+        PaintingBinding.instance.imageCache.clear();
+        PaintingBinding.instance.imageCache.clearLiveImages();
+        await tester.pump();
+        final leaked = tracker.leaked.length;
+        tracker.stop();
+        return leaked;
+      }
+
+      final baseline = await leakedFor((provider) => Image(image: provider));
+      final view = await leakedFor(
+        (provider) => PhotoView(imageProvider: provider),
+      );
+
+      expect(view, baseline);
     });
 
     testWidgets('survives swapping the controller out', (tester) async {

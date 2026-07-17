@@ -110,14 +110,19 @@ instead of animating.
   fight the view. Use `disableGestures: true` and drive the controller yourself.
 - Rotation (`enableRotation`) turns the child about `basePosition`, not about the
   centre of the pinch. The double tap cycle unwinds it back to zero.
+- Pan bounds are worked out from the child's unrotated width and height, so with
+  `enableRotation` on and the child at an angle, the edges it stops at are the
+  ones it would have had upright. This matches photo_view.
 - No video, and no widget-per-frame content. `imageProvider` resolves once to
   learn the image's size; an animated GIF plays, but its first frame sets the
   size.
 - `filterQuality` applies to `PhotoView.new` only. `PhotoView.customChild` draws
   whatever the child draws.
 - The gallery does not loop; page 0 is the first page.
-- `tightMode` from photo_view is not carried over. Wrap the view in a `SizedBox`
-  of the size you want instead.
+- `tightMode` from photo_view is not carried over. A `SizedBox` around the view
+  is the closest replacement, but it is not the same thing: `tightMode` shrank
+  the background to `childSize * scale` and kept following it as the zoom
+  changed, where a `SizedBox` is whatever size you give it and stays there.
 
 ## Migrating from photo_view
 

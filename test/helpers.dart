@@ -100,6 +100,34 @@ Future<void> scrollAt(
   await tester.pump();
 }
 
+/// Counts the objects of type [T] that get created and disposed while a test
+/// runs, using the instrumentation [ChangeNotifier], [ImageInfo] and friends
+/// already report in debug builds.
+///
+/// It is what pins the disposal of things a widget owns but never hands out, so
+/// a leak shows up as a failing test rather than as nothing at all.
+class DisposalTracker<T extends Object> {
+  DisposalTracker() {
+    FlutterMemoryAllocations.instance.addListener(_onEvent);
+  }
+
+  final created = <T>[];
+  final disposed = <T>[];
+
+  void _onEvent(ObjectEvent event) {
+    final object = event.object;
+    if (object is! T) return;
+    if (event is ObjectCreated) created.add(object);
+    if (event is ObjectDisposed) disposed.add(object);
+  }
+
+  /// The objects that were created and never disposed.
+  List<T> get leaked =>
+      created.where((o) => !disposed.any((d) => identical(d, o))).toList();
+
+  void stop() => FlutterMemoryAllocations.instance.removeListener(_onEvent);
+}
+
 /// Matches a double within [epsilon].
 Matcher closeToD(double value, [double epsilon = 0.01]) =>
     closeTo(value, epsilon);

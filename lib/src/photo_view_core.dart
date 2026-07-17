@@ -466,6 +466,15 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
   void _onDoubleTapDown(TapDownDetails details) =>
       _doubleTapFocal = details.localPosition;
 
+  /// Drops the focal recorded by [_onDoubleTapDown] when the double tap it
+  /// belonged to is abandoned, most often because the second tap turned into a
+  /// drag.
+  ///
+  /// Without this the focal outlives its gesture and is spent by whatever
+  /// changes the cycle step next, including a programmatic change that is meant
+  /// to have no focal point at all.
+  void _onDoubleTapCancel() => _doubleTapFocal = null;
+
   void _onDoubleTap() => _nextScaleState();
 
   /// Advances the double-tap cycle to the next step that actually changes the
@@ -637,6 +646,7 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
                     onScaleEnd: _onScaleEnd,
                     onDoubleTapDown: _onDoubleTapDown,
                     onDoubleTap: _onDoubleTap,
+                    onDoubleTapCancel: _onDoubleTapCancel,
                     onTapUp: widget.onTapUp == null
                         ? null
                         : (details) => widget.onTapUp!(context, details, value),

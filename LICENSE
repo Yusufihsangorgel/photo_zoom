@@ -3,9 +3,10 @@ MIT License
 Copyright (c) 2026 Yusuf Ihsan Gorgel
 
 This package follows the public API of the photo_view package, and its scale
-resolution and pan bound behaviour are derived from it:
+resolution and pan bound behaviour are derived from it. Its copyright notice,
+reproduced as it appears upstream:
 
-Copyright (c) 2018 Renan C. Araujo
+Copyright 2024 Renan C. Araújo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
