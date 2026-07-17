@@ -1,6 +1,8 @@
 # photo_zoom
 
-![photo_zoom banner](doc/banner.png)
+<p align="center">
+  <img src="doc/demo.gif" alt="photo_zoom smoothly zooming into image detail" width="260">
+</p>
 
 Pan, zoom and rotate images, and swipe through a gallery of them.
 
