@@ -1,0 +1,21 @@
+name: photo_zoom_example
+description: A gallery demo for the photo_zoom package.
+publish_to: none
+
+environment:
+  sdk: ^3.8.0
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  photo_zoom:
+    path: ../
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
