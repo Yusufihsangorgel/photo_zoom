@@ -1,3 +1,7 @@
+## 0.1.2
+
+- Docs: tightened the README wording and visuals.
+
 ## 0.1.1
 
 - Correct the migration table. Only the double tap recenters in photo_view:
