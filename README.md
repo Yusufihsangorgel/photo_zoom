@@ -1,5 +1,7 @@
 # photo_zoom
 
+![photo_zoom banner](doc/banner.png)
+
 Pan, zoom and rotate images, and swipe through a gallery of them.
 
 ```dart
