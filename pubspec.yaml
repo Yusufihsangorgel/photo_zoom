@@ -4,6 +4,7 @@ description: >-
   mouse wheel zooms on desktop, and the gallery swipes between photos.
 version: 0.1.1
 repository: https://github.com/Yusufihsangorgel/photo_zoom
+issue_tracker: https://github.com/Yusufihsangorgel/photo_zoom/issues
 
 topics:
   - image

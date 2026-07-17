@@ -1,5 +1,7 @@
 # photo_zoom
 
+![photo_zoom banner](https://raw.githubusercontent.com/Yusufihsangorgel/photo_zoom/main/doc/banner.png)
+
 <p align="center">
   <img src="doc/demo.gif" alt="photo_zoom smoothly zooming into image detail" width="260">
 </p>
