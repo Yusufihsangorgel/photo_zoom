@@ -3,7 +3,7 @@ description: >-
   Pan, zoom, rotate and swipe a photo gallery. Double tap and pinch zoom where
   you touch; mouse wheel on desktop. A type-safe, maintained drop-in for
   photo_view.
-version: 0.1.3
+version: 0.1.4
 repository: https://github.com/Yusufihsangorgel/photo_zoom
 issue_tracker: https://github.com/Yusufihsangorgel/photo_zoom/issues
 
@@ -13,6 +13,12 @@ topics:
   - gallery
   - viewer
   - gestures
+
+screenshots:
+  - description: >-
+      A pinch-zoom descending into a large image, holding detail through several
+      orders of magnification.
+    path: doc/demo.gif
 
 environment:
   sdk: ^3.8.0
