@@ -44,6 +44,8 @@ class ImageWrapper extends StatefulWidget {
     required this.onTapUp,
     required this.onTapDown,
     required this.onScaleEnd,
+    required this.onDismiss,
+    required this.dismissThreshold,
   });
 
   /// The image to resolve and display.
@@ -120,6 +122,12 @@ class ImageWrapper extends StatefulWidget {
 
   /// Called when a pinch or pan ends.
   final PhotoViewImageScaleEndCallback? onScaleEnd;
+
+  /// Called when the view is swiped away.
+  final VoidCallback? onDismiss;
+
+  /// How far a swipe must travel to dismiss, as a fraction of viewport height.
+  final double dismissThreshold;
 
   @override
   State<ImageWrapper> createState() => _ImageWrapperState();
@@ -265,6 +273,8 @@ class _ImageWrapperState extends State<ImageWrapper> {
       onTapUp: widget.onTapUp,
       onTapDown: widget.onTapDown,
       onScaleEnd: widget.onScaleEnd,
+      onDismiss: widget.onDismiss,
+      dismissThreshold: widget.dismissThreshold,
     );
   }
 }

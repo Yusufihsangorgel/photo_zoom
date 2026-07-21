@@ -1,3 +1,12 @@
+## 0.2.0
+
+- Add opt-in swipe to dismiss. Pass `onDismiss` to `PhotoView`,
+  `PhotoViewGallery` or `PhotoViewGalleryPageOptions` and a single-finger drag at
+  the rest scale slides the image and fades the background; releasing past
+  `dismissThreshold` (a fraction of the viewport height, 0.2 by default) calls it,
+  usually to pop the route, and a shorter drag springs back. A drag while zoomed
+  still pans. Off by default: with no `onDismiss` nothing changes.
+
 ## 0.1.4
 
 - Declare the demo in `pubspec.yaml` so pub.dev shows it on the package page.

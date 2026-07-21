@@ -58,6 +58,8 @@ class PhotoViewCore extends StatefulWidget {
     required this.onTapUp,
     required this.onTapDown,
     required this.onScaleEnd,
+    required this.onDismiss,
+    required this.dismissThreshold,
   }) : customChild = null;
 
   /// Creates a core displaying an arbitrary child.
@@ -81,6 +83,8 @@ class PhotoViewCore extends StatefulWidget {
     required this.onTapUp,
     required this.onTapDown,
     required this.onScaleEnd,
+    required this.onDismiss,
+    required this.dismissThreshold,
   }) : imageProvider = null,
        gaplessPlayback = false,
        filterQuality = null;
@@ -148,6 +152,12 @@ class PhotoViewCore extends StatefulWidget {
   /// Mirrors [PhotoView.onScaleEnd].
   final PhotoViewImageScaleEndCallback? onScaleEnd;
 
+  /// Mirrors [PhotoView.onDismiss].
+  final VoidCallback? onDismiss;
+
+  /// Mirrors [PhotoView.dismissThreshold].
+  final double dismissThreshold;
+
   @override
   State<PhotoViewCore> createState() => _PhotoViewCoreState();
 }
@@ -172,6 +182,15 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
 
   // Where the pending double tap landed, so the cycle can anchor its zoom there.
   Offset? _doubleTapFocal;
+
+  // The running translation of a drag-to-dismiss, or null when none is in
+  // progress. While it is non-null the child is drawn offset by it and the
+  // background is faded, and the normal pan handling is held off.
+  Offset? _dismissOffset;
+
+  // The offset a released, under-threshold dismiss is animating back from, or
+  // null when no such return is running. Driven by the settle controller.
+  Offset? _dismissReturnFrom;
 
   // Guards against reacting to the controller writes we make ourselves.
   bool _writingController = false;
@@ -374,6 +393,15 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
 
   void _onSettleTick() {
     final t = _settleCurve.value;
+    final returnFrom = _dismissReturnFrom;
+    if (returnFrom != null) {
+      final done = _settle.isCompleted;
+      setState(() {
+        _dismissOffset = done ? null : Offset.lerp(returnFrom, Offset.zero, t);
+        if (done) _dismissReturnFrom = null;
+      });
+      return;
+    }
     _writeController(
       widget.controller.value.copyWith(
         scale: _scaleTween?.transform(t),
@@ -387,6 +415,10 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
 
   void _onScaleStart(ScaleStartDetails details) {
     _settle.stop();
+    // A new gesture re-decides dismiss from scratch: drop any in-flight return
+    // and the offset it was returning from.
+    _dismissReturnFrom = null;
+    if (_dismissOffset != null) setState(() => _dismissOffset = null);
     _startFocal = details.localFocalPoint;
     _startScale = _scale;
     _startPosition = widget.controller.position;
@@ -394,6 +426,8 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
   }
 
   void _onScaleUpdate(ScaleUpdateDetails details) {
+    if (_maybeDrivesDismiss(details)) return;
+
     final startScale = _startScale;
     final startFocal = _startFocal;
     final startPosition = _startPosition;
@@ -433,6 +467,11 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
   }
 
   void _onScaleEnd(ScaleEndDetails details) {
+    if (_dismissOffset != null) {
+      _endDismiss();
+      return;
+    }
+
     widget.onScaleEnd?.call(context, details, widget.controller.value);
 
     final boundaries = widget.scaleBoundaries;
@@ -461,6 +500,66 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
       final target = position + direction * _kFlingDistance;
       _animateTo(position: _clamp(target, scale));
     }
+  }
+
+  // --- drag to dismiss ------------------------------------------------------
+
+  /// Whether the view is resting at its initial scale, where the child fills no
+  /// more than the viewport and there is nothing to pan, so a vertical drag is
+  /// free to mean "dismiss" instead.
+  bool get _atInitialScale =>
+      (_scale - widget.scaleBoundaries.initialScale).abs() < 1e-6;
+
+  /// Handles [details] as a drag-to-dismiss when one is enabled and the gesture
+  /// qualifies, returning whether it did.
+  ///
+  /// A dismiss is a single-pointer, mostly-vertical drag begun at the initial
+  /// scale. Once one is under way it keeps the whole gesture, so adding a second
+  /// finger part way through does not turn it back into a pinch.
+  bool _maybeDrivesDismiss(ScaleUpdateDetails details) {
+    if (widget.onDismiss == null) return false;
+    if (_dismissOffset case final offset?) {
+      setState(() => _dismissOffset = offset + details.focalPointDelta);
+      return true;
+    }
+    if (details.pointerCount != 1 || !_atInitialScale) return false;
+    final delta = details.focalPointDelta;
+    if (delta.dy.abs() <= delta.dx.abs()) return false;
+    setState(() => _dismissOffset = delta);
+    return true;
+  }
+
+  /// Fraction of the way to the dismiss threshold the child has been dragged,
+  /// from 0 at rest to 1 at the point a release would dismiss.
+  double _dismissProgress(Offset offset) {
+    final distance =
+        widget.dismissThreshold * widget.scaleBoundaries.outerSize.height;
+    if (distance <= 0) return 1;
+    return (offset.dy.abs() / distance).clamp(0.0, 1.0);
+  }
+
+  /// Dismisses if the drag passed the threshold, otherwise animates the child
+  /// back to rest.
+  void _endDismiss() {
+    final offset = _dismissOffset!;
+    if (_dismissProgress(offset) >= 1) {
+      // Clear first, so a caller that does not pop is left at rest rather than
+      // frozen mid-drag.
+      setState(() => _dismissOffset = null);
+      widget.onDismiss!();
+      return;
+    }
+    if (_reduceMotion) {
+      setState(() => _dismissOffset = null);
+      return;
+    }
+    _dismissReturnFrom = offset;
+    _scaleTween = null;
+    _positionTween = null;
+    _rotationTween = null;
+    _settle
+      ..value = 0
+      ..forward();
   }
 
   void _onDoubleTapDown(TapDownDetails details) =>
@@ -602,30 +701,46 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
         final boundaries = widget.scaleBoundaries;
         final scale = value.scale ?? boundaries.initialScale;
 
+        final Widget transformed = Transform(
+          transform: _geometry.matrixFor(
+            scale: scale,
+            position: value.position,
+            rotation: value.rotation,
+          ),
+          alignment: widget.basePosition,
+          child: OverflowBox(
+            alignment: widget.basePosition,
+            minWidth: 0,
+            maxWidth: double.infinity,
+            minHeight: 0,
+            maxHeight: double.infinity,
+            child: SizedBox.fromSize(size: boundaries.childSize, child: child),
+          ),
+        );
+
+        // Off the dismiss path the tree is exactly as it was: the background
+        // wraps the child directly. During a dismiss the two are split so the
+        // child can slide over a fading background.
+        final dismiss = _dismissOffset;
         final Widget content = SizedBox.fromSize(
           size: boundaries.outerSize,
-          child: DecoratedBox(
-            decoration: widget.backgroundDecoration,
-            child: Transform(
-              transform: _geometry.matrixFor(
-                scale: scale,
-                position: value.position,
-                rotation: value.rotation,
-              ),
-              alignment: widget.basePosition,
-              child: OverflowBox(
-                alignment: widget.basePosition,
-                minWidth: 0,
-                maxWidth: double.infinity,
-                minHeight: 0,
-                maxHeight: double.infinity,
-                child: SizedBox.fromSize(
-                  size: boundaries.childSize,
-                  child: child,
+          child: dismiss == null
+              ? DecoratedBox(
+                  decoration: widget.backgroundDecoration,
+                  child: transformed,
+                )
+              : Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Opacity(
+                      opacity: 1 - _dismissProgress(dismiss),
+                      child: DecoratedBox(
+                        decoration: widget.backgroundDecoration,
+                      ),
+                    ),
+                    Transform.translate(offset: dismiss, child: transformed),
+                  ],
                 ),
-              ),
-            ),
-          ),
         );
 
         return _buildSemantics(

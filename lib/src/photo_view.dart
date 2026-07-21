@@ -101,6 +101,8 @@ class PhotoView extends StatefulWidget {
     this.onTapUp,
     this.onTapDown,
     this.onScaleEnd,
+    this.onDismiss,
+    this.dismissThreshold = 0.2,
   }) : child = null,
        childSize = null;
 
@@ -136,6 +138,8 @@ class PhotoView extends StatefulWidget {
     this.onTapUp,
     this.onTapDown,
     this.onScaleEnd,
+    this.onDismiss,
+    this.dismissThreshold = 0.2,
   }) : imageProvider = null,
        loadingBuilder = null,
        errorBuilder = null,
@@ -288,6 +292,19 @@ class PhotoView extends StatefulWidget {
   /// Called when a pinch or pan ends, with the transform at that moment.
   final PhotoViewImageScaleEndCallback? onScaleEnd;
 
+  /// Called when the view is swiped away, typically to pop the route showing it.
+  ///
+  /// When set, a downward (or upward) single-finger drag at [initialScale]
+  /// slides the image and fades [backgroundDecoration] with the drag; releasing
+  /// past [dismissThreshold] calls this, and releasing short of it springs the
+  /// image back. A drag while zoomed still pans as usual. Leaving this `null`
+  /// turns the whole path off, which is the default.
+  final VoidCallback? onDismiss;
+
+  /// How far a swipe must travel to dismiss on release, as a fraction of the
+  /// viewport height. Defaults to `0.2`. Ignored when [onDismiss] is `null`.
+  final double dismissThreshold;
+
   @override
   State<PhotoView> createState() => _PhotoViewState();
 }
@@ -387,6 +404,8 @@ class _PhotoViewState extends State<PhotoView>
             onTapUp: widget.onTapUp,
             onTapDown: widget.onTapDown,
             onScaleEnd: widget.onScaleEnd,
+            onDismiss: widget.onDismiss,
+            dismissThreshold: widget.dismissThreshold,
           );
         }
 
@@ -416,6 +435,8 @@ class _PhotoViewState extends State<PhotoView>
           onTapUp: widget.onTapUp,
           onTapDown: widget.onTapDown,
           onScaleEnd: widget.onScaleEnd,
+          onDismiss: widget.onDismiss,
+          dismissThreshold: widget.dismissThreshold,
         );
       },
     );

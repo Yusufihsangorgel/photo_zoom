@@ -58,6 +58,25 @@ Each page keeps its own zoom. A drag pans the photo while it has room to move,
 and turns the page once the photo is against its edge, so panning a zoomed photo
 does not flip the page out from under it.
 
+## Swipe to dismiss
+
+Pass `onDismiss` and a vertical drag on the unzoomed image slides it and fades
+the background; let go past `dismissThreshold` and it fires, usually to pop the
+route the photo is on.
+
+```dart
+PhotoView(
+  imageProvider: NetworkImage(url),
+  onDismiss: () => Navigator.of(context).pop(),
+  // How far to drag to dismiss, as a fraction of viewport height. Default 0.2.
+  dismissThreshold: 0.2,
+)
+```
+
+A shorter drag springs back to rest, and a drag while zoomed still pans. Without
+`onDismiss` the gesture is off. `PhotoViewGallery` takes the same two, applied to
+every page; a `PhotoViewGalleryPageOptions` can override them per page.
+
 ## Parts
 
 | Class | Role |

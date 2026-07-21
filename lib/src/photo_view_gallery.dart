@@ -70,6 +70,8 @@ class PhotoViewGallery extends StatefulWidget {
     this.customSize,
     this.allowImplicitScrolling = false,
     this.pageSnapping = true,
+    this.onDismiss,
+    this.dismissThreshold = 0.2,
   }) : itemCount = null,
        builder = null;
 
@@ -93,6 +95,8 @@ class PhotoViewGallery extends StatefulWidget {
     this.customSize,
     this.allowImplicitScrolling = false,
     this.pageSnapping = true,
+    this.onDismiss,
+    this.dismissThreshold = 0.2,
   }) : pageOptions = null;
 
   /// The pages, when built from a fixed list.
@@ -156,6 +160,15 @@ class PhotoViewGallery extends StatefulWidget {
 
   /// Mirrors [PageView.pageSnapping].
   final bool pageSnapping;
+
+  /// Mirrors [PhotoView.onDismiss], for every page that does not set its own on
+  /// its [PhotoViewGalleryPageOptions]. Swiping any page away calls this, so it
+  /// usually pops the gallery route.
+  final VoidCallback? onDismiss;
+
+  /// Mirrors [PhotoView.dismissThreshold], used with the gallery-wide
+  /// [onDismiss].
+  final double dismissThreshold;
 
   /// The number of pages in the gallery.
   int get itemLength => itemCount ?? pageOptions!.length;
@@ -225,6 +238,13 @@ class _PhotoViewGalleryState extends State<PhotoViewGallery> {
     // rather than to its slot in the page view.
     final key = ValueKey(index);
 
+    // A page's own onDismiss wins; failing that the gallery-wide one applies,
+    // with the threshold that belongs to whichever won.
+    final onDismiss = options.onDismiss ?? widget.onDismiss;
+    final dismissThreshold = options.onDismiss != null
+        ? options.dismissThreshold
+        : widget.dismissThreshold;
+
     return ClipRect(
       child: child != null
           ? PhotoView.customChild(
@@ -252,6 +272,8 @@ class _PhotoViewGalleryState extends State<PhotoViewGallery> {
               onTapUp: options.onTapUp,
               onTapDown: options.onTapDown,
               onScaleEnd: options.onScaleEnd,
+              onDismiss: onDismiss,
+              dismissThreshold: dismissThreshold,
               child: child,
             )
           : PhotoView(
@@ -283,6 +305,8 @@ class _PhotoViewGalleryState extends State<PhotoViewGallery> {
               onTapUp: options.onTapUp,
               onTapDown: options.onTapDown,
               onScaleEnd: options.onScaleEnd,
+              onDismiss: onDismiss,
+              dismissThreshold: dismissThreshold,
             ),
     );
   }
@@ -314,6 +338,8 @@ class PhotoViewGalleryPageOptions {
     this.onTapUp,
     this.onTapDown,
     this.onScaleEnd,
+    this.onDismiss,
+    this.dismissThreshold = 0.2,
   }) : child = null,
        childSize = null;
 
@@ -337,6 +363,8 @@ class PhotoViewGalleryPageOptions {
     this.onTapUp,
     this.onTapDown,
     this.onScaleEnd,
+    this.onDismiss,
+    this.dismissThreshold = 0.2,
   }) : imageProvider = null,
        errorBuilder = null,
        filterQuality = null;
@@ -406,4 +434,11 @@ class PhotoViewGalleryPageOptions {
 
   /// Mirrors [PhotoView.onScaleEnd].
   final PhotoViewImageScaleEndCallback? onScaleEnd;
+
+  /// Mirrors [PhotoView.onDismiss], overriding [PhotoViewGallery.onDismiss] for
+  /// this page. When both are `null`, the page cannot be swiped away.
+  final VoidCallback? onDismiss;
+
+  /// Mirrors [PhotoView.dismissThreshold], used with this page's [onDismiss].
+  final double dismissThreshold;
 }
