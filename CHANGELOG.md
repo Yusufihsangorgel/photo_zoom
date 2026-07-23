@@ -1,3 +1,14 @@
+## 0.2.1
+
+- Fix swipe to dismiss going dead once the view is zoomed out below the
+  initial scale. The gate compared the scale to `scaleBoundaries.initialScale`
+  instead of checking whether the child had room to pan, and the default
+  `minScale` is `PhotoViewScale.value(0)`, so a pinch or a controller write
+  into `zoomedOut` left the drag unable to dismiss. It also could not pan:
+  `clampPosition` collapses every write to `Offset.zero` once the child no
+  longer overflows the viewport, so the drag produced no visible feedback
+  either.
+
 ## 0.2.0
 
 - Add opt-in swipe to dismiss. Pass `onDismiss` to `PhotoView`,

@@ -504,17 +504,26 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
 
   // --- drag to dismiss ------------------------------------------------------
 
-  /// Whether the view is resting at its initial scale, where the child fills no
-  /// more than the viewport and there is nothing to pan, so a vertical drag is
-  /// free to mean "dismiss" instead.
-  bool get _atInitialScale =>
-      (_scale - widget.scaleBoundaries.initialScale).abs() < 1e-6;
+  /// Whether the child has no room to pan in either axis at the current scale,
+  /// so a vertical drag is free to mean "dismiss" instead.
+  ///
+  /// This is true at the initial (contained) scale, and stays true all the way
+  /// down through [PhotoViewScaleState.zoomedOut]: there the child is smaller
+  /// still, so there is even less to pan than at rest. It goes false as soon as
+  /// either axis overflows the viewport, which is what a pinch or a programmatic
+  /// write past the initial scale does.
+  bool get _hasNothingToPan {
+    final boundaries = widget.scaleBoundaries;
+    final scale = _scale;
+    return boundaries.childSize.width * scale <= boundaries.outerSize.width &&
+        boundaries.childSize.height * scale <= boundaries.outerSize.height;
+  }
 
   /// Handles [details] as a drag-to-dismiss when one is enabled and the gesture
   /// qualifies, returning whether it did.
   ///
-  /// A dismiss is a single-pointer, mostly-vertical drag begun at the initial
-  /// scale. Once one is under way it keeps the whole gesture, so adding a second
+  /// A dismiss is a single-pointer, mostly-vertical drag begun with nothing to
+  /// pan. Once one is under way it keeps the whole gesture, so adding a second
   /// finger part way through does not turn it back into a pinch.
   bool _maybeDrivesDismiss(ScaleUpdateDetails details) {
     if (widget.onDismiss == null) return false;
@@ -522,7 +531,7 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
       setState(() => _dismissOffset = offset + details.focalPointDelta);
       return true;
     }
-    if (details.pointerCount != 1 || !_atInitialScale) return false;
+    if (details.pointerCount != 1 || !_hasNothingToPan) return false;
     final delta = details.focalPointDelta;
     if (delta.dy.abs() <= delta.dx.abs()) return false;
     setState(() => _dismissOffset = delta);

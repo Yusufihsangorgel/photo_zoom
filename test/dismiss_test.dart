@@ -24,11 +24,13 @@ void main() {
   Future<void> pumpView(
     WidgetTester tester, {
     required VoidCallback onDismiss,
+    PhotoViewController? controller,
   }) async {
     await tester.pumpWidget(
       harness(
         child: PhotoView(
           imageProvider: TestImageProvider(image),
+          controller: controller,
           onDismiss: onDismiss,
         ),
       ),
@@ -73,6 +75,67 @@ void main() {
 
       expect(dismissed, 0);
       expect(tester.getTopLeft(find.byType(Image)), offsetCloseTo(rest));
+    },
+  );
+
+  testWidgets(
+    'a drag past the threshold still dismisses once zoomed out below the '
+    'initial scale',
+    (tester) async {
+      var dismissed = 0;
+      final controller = PhotoViewController();
+      addTearDown(controller.dispose);
+      await pumpView(
+        tester,
+        controller: controller,
+        onDismiss: () => dismissed++,
+      );
+
+      // The default minScale is `PhotoViewScale.value(0)`, so a real drag can
+      // land anywhere below the initial (contained) scale of 2.0. The child is
+      // then smaller than at rest, so there is still nothing to pan.
+      controller.scale = 1;
+      await tester.pump();
+
+      final gesture = await tester.startGesture(const Offset(200, 200));
+      for (var i = 0; i < 5; i++) {
+        await gesture.moveBy(const Offset(0, 40));
+        await tester.pump();
+      }
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(dismissed, 1);
+    },
+  );
+
+  testWidgets(
+    'a drag pans instead of dismissing once zoomed in enough to have room',
+    (tester) async {
+      var dismissed = 0;
+      final controller = PhotoViewController();
+      addTearDown(controller.dispose);
+      await pumpView(
+        tester,
+        controller: controller,
+        onDismiss: () => dismissed++,
+      );
+
+      // At 5x the 200x100 image overflows both axes of the 400x400 viewport, so
+      // the drag has real panning to do and must not be read as a dismiss.
+      controller.scale = 5;
+      await tester.pump();
+
+      final gesture = await tester.startGesture(const Offset(200, 200));
+      for (var i = 0; i < 5; i++) {
+        await gesture.moveBy(const Offset(0, 40));
+        await tester.pump();
+      }
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(dismissed, 0);
+      expect(controller.position.dy, greaterThan(0));
     },
   );
 }
