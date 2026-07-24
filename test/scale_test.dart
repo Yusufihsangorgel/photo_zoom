@@ -91,6 +91,52 @@ void main() {
         1,
       );
     });
+
+    test('* and / refuse what PhotoViewScale.value refuses', () {
+      // The absolute scale has always asserted on a negative or a NaN, but the
+      // operators took anything. A NaN reached the widget and came back out as
+      // `Invalid argument(s): NaN` from clamp, or `Infinity or NaN toInt` from
+      // layout — neither naming the parameter that caused it.
+      expect(() => PhotoViewComputedScale.contained * -1, throwsAssertionError);
+      expect(
+        () => PhotoViewComputedScale.contained * double.nan,
+        throwsAssertionError,
+      );
+      expect(
+        () => PhotoViewComputedScale.covered / double.nan,
+        throwsAssertionError,
+      );
+      // 0/0 is the realistic source: `contained * (a / b)` with both zero.
+      expect(
+        () => PhotoViewComputedScale.contained * 0 / 0,
+        throwsAssertionError,
+      );
+    });
+
+    test('infinity stays legal: it is the default maxScale', () {
+      // `PhotoView.maxScale` defaults to `PhotoViewScale.value(infinity)`,
+      // meaning no upper limit, so the check above must not reject it.
+      expect(
+        PhotoViewScale.value(
+          double.infinity,
+        ).resolve(const Size(400, 400), const Size(200, 100)),
+        double.infinity,
+      );
+      expect(
+        (PhotoViewComputedScale.contained / 0).resolve(
+          const Size(400, 400),
+          const Size(200, 100),
+        ),
+        double.infinity,
+      );
+      expect(
+        (PhotoViewComputedScale.contained * 0).resolve(
+          const Size(400, 400),
+          const Size(200, 100),
+        ),
+        0,
+      );
+    });
   });
 
   group('ScaleBoundaries', () {

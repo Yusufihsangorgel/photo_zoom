@@ -1,3 +1,26 @@
+## 1.0.0
+
+First stable release. The API below is what 1.0 freezes.
+
+- **Fix `PhotoViewComputedScale`'s operators accepting scales the absolute
+  scale refuses.** `PhotoViewScale.value` has always asserted on a negative or
+  a NaN, but `contained * x` and `covered / x` took anything. A NaN — the
+  realistic source is a caller's own arithmetic, `contained * (a / b)` with
+  both zero — travelled into the widget and came back out as
+  `Invalid argument(s): NaN` from `clamp`, or `Unsupported operation: Infinity
+  or NaN toInt` from layout, depending on which parameter carried it. Neither
+  message names the parameter, so the error surfaces far from its origin. Both
+  operators now assert with a message that says which one produced what.
+  Infinity stays legal: it is `maxScale`'s default and means "no upper limit".
+
+Verified unchanged for this release, by driving each case rather than reading
+for it: a zero-size viewport, an external controller or scale-state controller
+disposed before the view, a gallery built with `itemCount: 0`, a gallery whose
+`itemCount` shrinks while the last page is showing, writes to a controller that
+outlives its view, extreme controller values (scale 0 and 1e9, position 1e9,
+rotation 1e9), five double-taps interrupting each other's animations, a dispose
+mid-animation, and an orientation change while zoomed in. None misbehaved.
+
 ## 0.2.1
 
 - Fix swipe to dismiss going dead once the view is zoomed out below the

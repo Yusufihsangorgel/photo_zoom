@@ -33,7 +33,11 @@ sealed class PhotoViewScale {
 }
 
 class _AbsoluteScale extends PhotoViewScale {
-  const _AbsoluteScale(this.scale) : assert(scale >= 0, 'scale must be >= 0');
+  // `scale >= 0` is false for NaN as well as for a negative, which is what
+  // this needs: infinity is a legitimate maxScale meaning "no upper limit",
+  // and it is the default.
+  const _AbsoluteScale(this.scale)
+    : assert(scale >= 0, 'scale must be >= 0, and not NaN');
 
   final double scale;
 
@@ -76,11 +80,31 @@ class PhotoViewComputedScale extends PhotoViewScale {
 
   /// Returns this scale with its [multiplier] scaled by [multiplier].
   PhotoViewComputedScale operator *(double multiplier) =>
-      PhotoViewComputedScale._(_fit, this.multiplier * multiplier);
+      PhotoViewComputedScale._(_fit, _check(this.multiplier * multiplier, '*'));
 
   /// Returns this scale with its [multiplier] divided by [divider].
   PhotoViewComputedScale operator /(double divider) =>
-      PhotoViewComputedScale._(_fit, multiplier / divider);
+      PhotoViewComputedScale._(_fit, _check(multiplier / divider, '/'));
+
+  /// Asserts that an adjusted multiplier is still a usable scale.
+  ///
+  /// [PhotoViewScale.value] refuses a negative scale and a NaN; the computed
+  /// scales have to hold the same line, and did not. The resolved value flows
+  /// into `clamp`, which rejects NaN with `Invalid argument(s): NaN`, and into
+  /// the layout, which throws `Infinity or NaN toInt`. Neither message names
+  /// the parameter that caused it, so a NaN out of a caller's own arithmetic
+  /// (`contained * (a / b)` with `b == 0`) surfaces far from its origin.
+  ///
+  /// Infinity is deliberately allowed: it is a `maxScale` meaning "no upper
+  /// limit", and it is the default one.
+  static double _check(double value, String op) {
+    assert(
+      value >= 0,
+      'PhotoViewComputedScale $op produced $value. A scale must be >= 0 and '
+      'not NaN; check the operand for a 0/0 or a NaN.',
+    );
+    return value;
+  }
 
   @override
   double resolve(Size outerSize, Size childSize) {
