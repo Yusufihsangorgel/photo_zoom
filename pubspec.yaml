@@ -1,9 +1,9 @@
 name: photo_zoom
 description: >-
   Pan, zoom, rotate and swipe a photo gallery. Double tap and pinch zoom where
-  you touch; mouse wheel on desktop. A type-safe, maintained drop-in for
+  you touch; mouse wheel on desktop. A type-safe, maintained alternative to
   photo_view.
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/Yusufihsangorgel/photo_zoom
 issue_tracker: https://github.com/Yusufihsangorgel/photo_zoom/issues
 

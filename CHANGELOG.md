@@ -1,3 +1,12 @@
+## 1.0.1
+
+- Call the package an alternative to `photo_view` rather than a drop-in. Moving
+  across is usually just a change of import, but the migration table in the
+  readme lists cases that need an edit: `minScale: 0.5` becomes
+  `minScale: PhotoViewScale.value(0.5)`, the controller is a `ValueNotifier`
+  instead of a stream, and `tightMode` is gone. "Drop-in" promised none of that.
+  Description only; no code change.
+
 ## 1.0.0
 
 First stable release. The API below is what 1.0 freezes.
