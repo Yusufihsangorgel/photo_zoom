@@ -1,0 +1,6 @@
+# Article and post artwork. It is committed because published writing links to
+# it by raw URL, but it is not part of the package, so it stays out of the
+# archive. This file sits in doc/ rather than the repository root on purpose:
+# pub replaces .gitignore with .pubignore *per directory*, so a root .pubignore
+# would silence the root .gitignore for the whole tree and ship build/ output.
+blog/
