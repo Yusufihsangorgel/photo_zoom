@@ -1,3 +1,24 @@
+## 1.0.2
+
+- Stop shipping build output in the published archive. This version downloads
+  as 3 MB. 1.0.1 downloaded 32,418,118 bytes, and 93,092,107 of its 96,897,275
+  unpacked bytes were under `build/`; two
+  `build/test_cache/*.cache.dill.track.dill` files account for 92,965,256 of
+  those, which is what `flutter test` left on the machine that published the
+  release. No library code changed, and `lib/` is byte-identical to 1.0.1.
+
+  The cause was one file in the wrong directory. pub replaces `.gitignore`
+  with `.pubignore` per directory rather than layering the two, so a
+  `.pubignore` at the repository root switched the root `.gitignore` off for
+  the whole tree, and `build/` is named only in `.gitignore`. The rule now
+  lives in `doc/.pubignore`, beside the `doc/blog/` directory it was written
+  for; `doc/` has no `.gitignore` for it to shadow, so the root one stays in
+  force.
+
+  Checked with `build/` on disk rather than absent, since an absent `build/`
+  would hide the bug instead of testing the fix: 3 MB here, against 17 MB with
+  the old layout restored in a scratch copy.
+
 ## 1.0.1
 
 - Call the package an alternative to `photo_view` rather than a drop-in. Moving
