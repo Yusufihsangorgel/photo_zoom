@@ -16,10 +16,8 @@ topics:
 
 screenshots:
   - description: >-
-      A numbered grid in the viewer. A marker sits on tile 6. A double tap
-      magnifies it and tile 6 stays under the marker; a finger drags the image
-      around; two fingers pinch out from the same point and tile 6 is still
-      there, sharper.
+      A double tap, a drag and a two-finger pinch on a numbered grid. The
+      tile under the marker is the same tile throughout.
     path: doc/anchored-zoom.gif
   - description: >-
       A pinch-zoom descending into a large image, holding detail through several
