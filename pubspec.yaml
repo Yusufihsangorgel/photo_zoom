@@ -3,7 +3,7 @@ description: >-
   Pan, zoom, rotate and swipe a photo gallery. Double tap and pinch zoom where
   you touch; mouse wheel on desktop. A type-safe, maintained alternative to
   photo_view.
-version: 1.1.0
+version: 1.2.0
 repository: https://github.com/Yusufihsangorgel/photo_zoom
 issue_tracker: https://github.com/Yusufihsangorgel/photo_zoom/issues
 
@@ -16,9 +16,10 @@ topics:
 
 screenshots:
   - description: >-
-      A numbered grid in the viewer. A marker sits on tile 6, a double tap
-      fires at the marker, the image magnifies, and tile 6 is still under the
-      marker.
+      A numbered grid in the viewer. A marker sits on tile 6. A double tap
+      magnifies it and tile 6 stays under the marker; a finger drags the image
+      around; two fingers pinch out from the same point and tile 6 is still
+      there, sharper.
     path: doc/anchored-zoom.gif
   - description: >-
       A pinch-zoom descending into a large image, holding detail through several

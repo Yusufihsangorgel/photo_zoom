@@ -1036,6 +1036,98 @@ void main() {
     });
   });
 
+  group('filter quality', () {
+    FilterQuality qualityOf(WidgetTester tester) =>
+        tester.widget<Image>(find.byType(Image)).filterQuality;
+
+    testWidgets('the filter follows magnification in device pixels', (
+      tester,
+    ) async {
+      // A logical scale below 1 can still be a magnification once the display
+      // ratio is applied, and it is the pixels that reach the display that
+      // decide which filter helps. Pinning the ratio to 1 makes the two the
+      // same number, so the test says what it means.
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      final controller = newController();
+      await pumpPhotoView(tester, controller: controller);
+
+      // Contained in a 400 box, the 200x200 test image starts at 2.
+      expect(controller.scale, 2);
+      expect(qualityOf(tester), FilterQuality.high);
+
+      // Below one source pixel per screen pixel there is nothing to sharpen,
+      // and a mipmap is what keeps a shrunken image from aliasing.
+      controller.scale = 0.5;
+      await tester.pumpAndSettle();
+      expect(qualityOf(tester), FilterQuality.medium);
+    });
+
+    testWidgets('a scale under 1 on a 3x display still counts as magnified', (
+      tester,
+    ) async {
+      final controller = newController();
+      // Built directly rather than through the helper, whose MediaQuery
+      // carries the default ratio of 1 and would hide the thing being tested.
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: MediaQuery(
+            data: const MediaQueryData(devicePixelRatio: 3),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox.fromSize(
+                size: const Size(400, 400),
+                child: PhotoView(
+                  imageProvider: TestImageProvider(image),
+                  controller: controller,
+                  minScale: const PhotoViewScale.value(0),
+                  maxScale: const PhotoViewScale.value(double.infinity),
+                  initialScale: PhotoViewComputedScale.contained,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      controller.scale = 0.5;
+      await tester.pumpAndSettle();
+      // Half a logical pixel per source pixel is still one and a half device
+      // pixels, so the image is magnified where it counts.
+      expect(qualityOf(tester), FilterQuality.high);
+
+      controller.scale = 0.2;
+      await tester.pumpAndSettle();
+      expect(qualityOf(tester), FilterQuality.medium);
+    });
+
+    testWidgets('an explicit filterQuality is left alone', (tester) async {
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox.fromSize(
+              size: const Size(400, 400),
+              child: PhotoView(
+                imageProvider: TestImageProvider(image),
+                filterQuality: FilterQuality.none,
+                initialScale: PhotoViewComputedScale.contained,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      // Magnified, so the automatic choice would be high; the caller said none.
+      expect(qualityOf(tester), FilterQuality.none);
+    });
+  });
+
   group('controller notifications', () {
     testWidgets('mounting inside a layout callback does not break a listener', (
       tester,

@@ -3,9 +3,10 @@
 A pan and zoom image viewer, and a gallery of them, that zooms **where you
 touched** rather than towards the middle.
 
-![A numbered grid in a viewer. A marker sits on tile 6, a double tap fires at
-the marker, the image magnifies from 0.27x to 0.80x, and tile 6 is still under
-the marker. Then it returns to a contained
+![A numbered grid in a viewer. A marker sits on tile 6. A double tap magnifies
+it and tile 6 stays under the marker; a finger drags the image around; two
+fingers pinch out from the same point and tile 6 is still there, sharper. Then
+it returns to a contained
 fit.](https://raw.githubusercontent.com/Yusufihsangorgel/photo_zoom/main/doc/anchored-zoom.gif)
 
 ```dart
@@ -33,11 +34,27 @@ zooms towards the centre whatever you tapped. Its issues [#82], [#394] and
 [#538] ask for the tapped point to stay put. Here it does, and the same
 anchoring applies to a pinch and to a mouse wheel.
 
-The recording is `example/`, running on a simulator. The tap is synthesised, so
-it lands on the same pixel every time; the grid is numbered so that "the tile
-under the marker did not change" is something you can check rather than take on
-trust. `cd example && flutter create . && flutter run --dart-define=start=compare`
+Every gesture in that recording goes through the same code your users' fingers
+will: a double tap, a one-finger drag, a two-finger pinch. They are synthesised
+rather than performed, so each one lands on the same pixel every run, and the
+grid is numbered so that "the tile under the marker did not change" is
+something you can check rather than take on trust.
+`cd example && flutter create . && flutter run --dart-define=start=compare`
 shows the same screen, and the buttons hand the viewer back to you.
+
+## It gets sharper as you go in, not softer
+
+Magnifying and shrinking want different sampling. `FilterQuality.medium` reads
+a mipmap, which is what a shrunken image needs and what leaves a magnified one
+soft; `FilterQuality.high` is bicubic, which holds an edge when the image is
+drawn larger than its own pixels. Which one applies is not a property of the
+image. It changes as the reader zooms.
+
+So it is decided per frame, from the scale actually on screen, in device pixels
+rather than logical ones. Cubic is the expensive filter, so it is only asked
+for once the transform has come to rest: during a pinch or a fling the frame
+budget matters more, and the difference is not visible on a moving image.
+Passing `filterQuality` yourself turns all of that off and uses what you passed.
 
 [photo_view]: https://pub.dev/packages/photo_view
 

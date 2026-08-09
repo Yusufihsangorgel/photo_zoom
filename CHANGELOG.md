@@ -1,3 +1,17 @@
+## 1.2.0
+
+- The sampling filter now follows the zoom. Magnifying and shrinking want
+  different filters, and which applies changes as the reader zooms, so it is
+  decided per frame from the scale on screen in device pixels:
+  `FilterQuality.high` when the image is drawn larger than its own pixels,
+  `FilterQuality.medium` when it is not, and `medium` throughout a gesture or a
+  fling, where the frame budget matters more than the last of the sharpness.
+  Passing `filterQuality` still overrides all of it.
+- The recording in the README now shows the drag and the two-finger pinch as
+  well as the double tap, and the demonstration keeps moving rather than
+  parking on a still frame: a frame diff of the previous cut came back 87%
+  unchanged, this one 47%.
+
 ## 1.1.0
 
 - Fixed a crash-adjacent error when a `PhotoView` is mounted from inside a

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
@@ -213,6 +214,20 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
   /// callbacks, where depending on an inherited widget is not allowed.
   bool _reduceMotion = false;
 
+  /// Cached for the same reason as [_reduceMotion], and used to tell
+  /// magnification from minification in device pixels rather than logical ones.
+  double _devicePixelRatio = 1;
+
+  /// The sampling currently handed to the image.
+  ///
+  /// Kept in a field rather than recomputed while building, because the image
+  /// is deliberately built once and passed through the transform builder: it
+  /// does not need laying out again for every frame of a pinch. Recomputing
+  /// the filter inside that builder would have had no effect at all, which is
+  /// what the test for this caught. It is refreshed only when the answer
+  /// changes, which is at most twice per gesture.
+  FilterQuality _filterQuality = FilterQuality.medium;
+
   @override
   void initState() {
     super.initState();
@@ -229,6 +244,7 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _reduceMotion = MediaQuery.disableAnimationsOf(context);
+    _devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
   }
 
   @override
@@ -283,6 +299,7 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
     widget.controller.value = value;
     _lastValue = widget.controller.value;
     _writingController = false;
+    _syncFilterQuality();
   }
 
   void _writeScaleState(PhotoViewScaleState state) {
@@ -334,6 +351,7 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
     } else {
       _lastValue = value;
     }
+    _syncFilterQuality();
   }
 
   /// Reacts to a cycle step set from outside or by a double tap, by animating to
@@ -432,6 +450,8 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
   // --- gestures -------------------------------------------------------------
 
   void _onScaleStart(ScaleStartDetails details) {
+    // Motion begins: drop to the cheap filter for the duration.
+    scheduleMicrotask(_syncFilterQuality);
     _settle.stop();
     // A new gesture re-decides dismiss from scratch: drop any in-flight return
     // and the offset it was returning from.
@@ -485,6 +505,8 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
   }
 
   void _onScaleEnd(ScaleEndDetails details) {
+    // Motion ends: the sharper filter becomes worth its cost again.
+    scheduleMicrotask(_syncFilterQuality);
     if (_dismissOffset != null) {
       _endDismiss();
       return;
@@ -857,9 +879,43 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
     return Image(
       image: widget.imageProvider!,
       gaplessPlayback: widget.gaplessPlayback,
-      filterQuality: widget.filterQuality ?? FilterQuality.medium,
+      filterQuality: widget.filterQuality ?? _filterQuality,
       excludeFromSemantics: true,
       fit: BoxFit.contain,
     );
   }
+
+  /// The sampling to use when the caller has not chosen one.
+  ///
+  /// Magnifying and minifying want different filters. [FilterQuality.medium]
+  /// samples a mipmap, which is what a shrunken image needs and what leaves a
+  /// magnified one soft; [FilterQuality.high] is bicubic, which holds an edge
+  /// when the image is drawn larger than its own pixels. Which of the two
+  /// applies is not a property of the image, it changes as the user zooms, so
+  /// it is decided per frame from the scale actually on screen.
+  ///
+  /// Cubic sampling is the expensive one, so it is only asked for once the
+  /// transform has come to rest. During a pinch or a fling the frame budget
+  /// matters more than the last of the sharpness, and the difference is not
+  /// visible on a moving image anyway.
+  /// Recomputes [_filterQuality] and rebuilds only if it moved.
+  void _syncFilterQuality() {
+    final wanted = _wantedFilterQuality;
+    if (wanted == _filterQuality) return;
+    if (!mounted) return;
+    setState(() => _filterQuality = wanted);
+  }
+
+  FilterQuality get _wantedFilterQuality {
+    if (_inMotion) return FilterQuality.medium;
+    // The scale is source pixels to logical pixels; the screen adds its own
+    // ratio on top, and magnification is about the pixels that actually land
+    // on the display.
+    final onScreen = _scale * _devicePixelRatio;
+    return onScreen > 1 ? FilterQuality.high : FilterQuality.medium;
+  }
+
+  /// Whether a gesture or an animation is currently moving the transform.
+  bool get _inMotion =>
+      _startScale != null || _settle.isAnimating || _dismissOffset != null;
 }
