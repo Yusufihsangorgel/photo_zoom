@@ -1,12 +1,12 @@
 # photo_zoom
 
-![photo_zoom banner](https://raw.githubusercontent.com/Yusufihsangorgel/photo_zoom/main/doc/banner.png)
+A pan and zoom image viewer, and a gallery of them, that zooms **where you
+touched** rather than towards the middle.
 
-<p align="center">
-  <img src="doc/demo.gif" alt="photo_zoom smoothly zooming into image detail" width="260">
-</p>
-
-Pan, zoom and rotate images, and swipe through a gallery of them.
+![A numbered grid in a viewer. A marker sits on tile 6, a double tap fires at
+the marker, the image magnifies from 0.27x to 0.80x, and tile 6 is still under
+the marker. Then it returns to a contained
+fit.](https://raw.githubusercontent.com/Yusufihsangorgel/photo_zoom/main/doc/anchored-zoom.gif)
 
 ```dart
 import 'package:photo_zoom/photo_zoom.dart';
@@ -14,21 +14,46 @@ import 'package:photo_zoom/photo_zoom.dart';
 PhotoView(imageProvider: const AssetImage('assets/photo.jpg'))
 ```
 
-Drag to pan, pinch to zoom, double tap to cycle through fit, fill and actual
-size. On desktop and web the mouse wheel zooms at the pointer and a two-finger
-trackpad scroll pans.
+## Why this instead of what you already have
 
-The API follows the [photo_view] package by Renan C. Araújo, which is MIT
-licensed. Class names and most parameters are the same, and moving across is
-mostly a change of import; [the differences](#migrating-from-photo_view) are
-listed below.
+**Instead of `InteractiveViewer`.** Flutter's own viewer pans and pinches, and
+for a picture you only ever look at, it is enough. It has no double tap zoom at
+all (`onDoubleTap` does not appear in its API), no fit / fill / actual-size
+cycle, no swipe-between-photos gallery, and it clamps against the *widget* it
+wraps rather than the image inside it, so an image letterboxed in its box can
+still be dragged into the empty margin. Adding those back is the work this
+package already did.
+
+**Instead of [photo_view].** The API is the same one, so the move is mostly a
+change of import, and the [differences](#migrating-from-photo_view) are listed
+below. The one in the recording is the reason to bother: on a double tap
+photo_view runs `animatePosition(controller.position, Offset.zero)`
+(`photo_view_core.dart:282`), which returns the image to `basePosition` and
+zooms towards the centre whatever you tapped. Its issues [#82], [#394] and
+[#538] ask for the tapped point to stay put. Here it does, and the same
+anchoring applies to a pinch and to a mouse wheel.
+
+The recording is `example/`, running on a simulator. The tap is synthesised, so
+it lands on the same pixel every time; the grid is numbered so that "the tile
+under the marker did not change" is something you can check rather than take on
+trust. `cd example && flutter create . && flutter run --dart-define=start=compare`
+shows the same screen, and the buttons hand the viewer back to you.
 
 [photo_view]: https://pub.dev/packages/photo_view
 
-## Zoom lands where you put it
+## Reach for it when
 
-Zooming, by any means, keeps the point you started from under your finger or
-pointer:
+- A photo, a map, a scan or a chart has detail worth magnifying, and the reader
+  wants to zoom into a particular part of it.
+- A gallery needs each photo to keep its own zoom while the pages swipe.
+- The same screen ships to phone and desktop, and the wheel and trackpad should
+  behave like they do everywhere else.
+
+Skip it when the image is decorative, or when a fixed `Image` with `BoxFit`
+already answers the question. This is a viewer, not a canvas: no drawing, no
+annotation layers, no video.
+
+## Scale limits
 
 ```dart
 PhotoView(
@@ -37,9 +62,6 @@ PhotoView(
   maxScale: PhotoViewComputedScale.covered * 3,
 )
 ```
-
-Double tap a corner and that corner zooms, rather than the middle of the image
-sliding into view. The same anchoring applies to a pinch and to a wheel scroll.
 
 ## Gallery
 

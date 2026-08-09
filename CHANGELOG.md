@@ -1,3 +1,18 @@
+## 1.1.0
+
+- Fixed a crash-adjacent error when a `PhotoView` is mounted from inside a
+  layout callback while something else listens to the same `PhotoViewController`.
+  The view resolves its scale from `initState`, and writing the resolved value
+  there notified the listener mid-build, which the framework rejects. The write
+  is now held until the frame is done; the frame still paints at the right
+  scale. The combination is the one the controller's own documentation
+  suggests, so it had to hold.
+- The example gained a second screen showing where a double tap sends the zoom,
+  on a numbered grid, with a live scale readout. Open it directly with
+  `flutter run --dart-define=start=compare`.
+- The README leads with that recording and answers `InteractiveViewer` and
+  photo_view in its first screen rather than a hundred lines down.
+
 ## 1.0.3
 
 - The example demonstrates `enableScrollZoom`. A toolbar button turns it off,

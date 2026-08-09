@@ -1035,6 +1035,63 @@ void main() {
       expect(scrollController.offset, greaterThan(0));
     });
   });
+
+  group('controller notifications', () {
+    testWidgets('mounting inside a layout callback does not break a listener', (
+      tester,
+    ) async {
+      // The documented way to read the scale is a ValueListenableBuilder on
+      // the controller. The view resolves its scale from initState, and when
+      // something above it defers its build to layout, that initState runs
+      // inside a layout callback, where marking the builder dirty is an
+      // error. Both are ordinary things to write, so the combination has to
+      // hold.
+      final controller = newController();
+      final scales = <double?>[];
+
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox.fromSize(
+              size: const Size(400, 400),
+              child: Stack(
+                children: [
+                  // Built before the view, so it is already mounted and
+                  // listening when the view writes its first value.
+                  ValueListenableBuilder<PhotoViewControllerValue>(
+                    valueListenable: controller,
+                    builder: (context, value, _) {
+                      scales.add(value.scale);
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                  LayoutBuilder(
+                    builder: (context, constraints) => PhotoView(
+                      imageProvider: TestImageProvider(image),
+                      controller: controller,
+                      minScale: const PhotoViewScale.value(0),
+                      maxScale: const PhotoViewScale.value(double.infinity),
+                      initialScale: PhotoViewComputedScale.contained,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      // The held-back write still lands, so the listener sees the resolved
+      // scale rather than being stuck on the unresolved null it started with.
+      expect(controller.scale, isNotNull);
+      expect(scales.last, controller.scale);
+    });
+  });
 }
 
 /// Pinches [focal] from [from] to [to] pixels of separation.

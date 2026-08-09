@@ -4,3 +4,12 @@ pubspec.lock
 .idea/
 .metadata
 .flutter-plugins*
+
+# Platform scaffolding for the example. `flutter create .` regenerates it, so
+# it is not worth carrying in the repository or in the published archive.
+example/ios/
+example/android/
+example/macos/
+example/linux/
+example/windows/
+example/web/

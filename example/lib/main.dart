@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:photo_zoom/photo_zoom.dart';
 
+import 'anchored_zoom_page.dart';
+
 void main() => runApp(const ExampleApp());
 
 /// The photos the gallery shows. The aspect ratios differ on purpose, so the
@@ -41,7 +43,11 @@ class ExampleApp extends StatelessWidget {
       colorSchemeSeed: Colors.indigo,
       brightness: Brightness.dark,
     ),
-    home: const GridPage(),
+    // `flutter run --dart-define=start=compare` opens straight on the
+    // side-by-side screen, which is how the README recording is made.
+    home: const String.fromEnvironment('start') == 'compare'
+        ? const AnchoredZoomPage()
+        : const GridPage(),
   );
 }
 
@@ -52,7 +58,20 @@ class GridPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('photo_zoom')),
+      appBar: AppBar(
+        title: const Text('photo_zoom'),
+        actions: [
+          TextButton.icon(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (context) => const AnchoredZoomPage(),
+              ),
+            ),
+            icon: const Icon(Icons.compare_arrows),
+            label: const Text('Compare'),
+          ),
+        ],
+      ),
       body: GridView.builder(
         padding: const EdgeInsets.all(8),
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(

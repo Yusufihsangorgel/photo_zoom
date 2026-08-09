@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
 import 'callbacks.dart';
@@ -261,6 +262,23 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
   // --- state plumbing -------------------------------------------------------
 
   void _writeController(PhotoViewControllerValue value) {
+    // The first resolve runs from initState, which can happen inside another
+    // widget's build or layout callback. Writing then notifies the
+    // controller's listeners, and marking one of those dirty mid-build is an
+    // error the framework raises rather than absorbs. Hold the write until
+    // the frame is done. This frame still paints correctly: [_scale] falls
+    // back to the boundaries' initial scale while the controller has none.
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _writeControllerNow(value);
+      });
+      return;
+    }
+    _writeControllerNow(value);
+  }
+
+  void _writeControllerNow(PhotoViewControllerValue value) {
     _writingController = true;
     widget.controller.value = value;
     _lastValue = widget.controller.value;
