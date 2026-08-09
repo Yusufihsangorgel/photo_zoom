@@ -19,7 +19,7 @@ size. On desktop and web the mouse wheel zooms at the pointer and a two-finger
 trackpad scroll pans.
 
 The API follows the [photo_view] package by Renan C. Araújo, which is MIT
-licensed. Class names and most parameters are the same, so moving across is
+licensed. Class names and most parameters are the same, and moving across is
 mostly a change of import; [the differences](#migrating-from-photo_view) are
 listed below.
 
@@ -91,7 +91,7 @@ every page; a `PhotoViewGalleryPageOptions` can override them per page.
 
 ## Driving it from code
 
-`PhotoViewController` is a `ValueNotifier`, so read it with a
+`PhotoViewController` is a `ValueNotifier`. Read it with a
 `ValueListenableBuilder` and write to it directly:
 
 ```dart
@@ -128,7 +128,7 @@ instead of animating.
 
 ## Limits
 
-- The view fills the box it is given, so it needs a bounded one. In an unbounded
+- The view fills the box it is given and needs a bounded one. In an unbounded
   parent, pass `customSize`.
 - `PhotoView.customChild` transforms a widget; it does not arbitrate with
   gestures inside that widget. A child with its own pan or tap handlers will
@@ -156,7 +156,7 @@ Most code moves across with the import alone. What differs:
 | photo_view | photo_zoom | Why |
 |---|---|---|
 | `photo_view.dart` + `photo_view_gallery.dart` | one `photo_zoom.dart` | One entry point |
-| `minScale: 0.5` | `minScale: PhotoViewScale.value(0.5)` | `dynamic` became a type, so a bad value is a compile error, not a runtime assert |
+| `minScale: 0.5` | `minScale: PhotoViewScale.value(0.5)` | `dynamic` became a type: a bad value is a compile error, not a runtime assert |
 | `minScale: PhotoViewComputedScale.contained * 0.8` | unchanged | |
 | `controller.outputStateStream.listen(fn)` | `controller.addListener(fn)`, or a `ValueListenableBuilder` | The controller is a `ValueNotifier`; no stream, and updates land on the same frame |
 | `PhotoViewControllerBase`, `addIgnorableListener`, `setScaleInvisibly`, `setInvisibly` | removed | Internals that leaked into the public API |
