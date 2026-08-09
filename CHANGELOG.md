@@ -1,3 +1,10 @@
+## 1.0.3
+
+- The example demonstrates `enableScrollZoom`. A toolbar button turns it off,
+  which is the behaviour `photo_view` has no switch for, and the difference is
+  a trackpad gesture away. The feature was the reason to pick this package and
+  the example never touched it.
+
 ## 1.0.2
 
 - Stop shipping build output in the published archive. This version downloads

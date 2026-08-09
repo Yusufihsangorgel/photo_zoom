@@ -95,6 +95,11 @@ class GalleryPage extends StatefulWidget {
 }
 
 class _GalleryPageState extends State<GalleryPage> {
+  /// The behaviour `photo_view` has no switch for: a trackpad or wheel
+  /// scroll zooms the image rather than scrolling past it. Turn it off to
+  /// feel what the incumbent does.
+  bool _scrollZoom = true;
+
   late final PageController _pageController = PageController(
     initialPage: widget.initialIndex,
   );
@@ -129,6 +134,13 @@ class _GalleryPageState extends State<GalleryPage> {
         title: Text(photo.label, style: const TextStyle(fontSize: 15)),
         actions: [
           IconButton(
+            tooltip: _scrollZoom
+                ? 'Scroll zoom on, tap to turn it off'
+                : 'Scroll zoom off, tap to turn it on',
+            icon: Icon(_scrollZoom ? Icons.mouse : Icons.mouse_outlined),
+            onPressed: () => setState(() => _scrollZoom = !_scrollZoom),
+          ),
+          IconButton(
             tooltip: 'Reset zoom',
             icon: const Icon(Icons.zoom_out_map),
             onPressed: () => _controllers[_index].reset(),
@@ -138,6 +150,7 @@ class _GalleryPageState extends State<GalleryPage> {
       body: Stack(
         children: [
           PhotoViewGallery.builder(
+            enableScrollZoom: _scrollZoom,
             pageController: _pageController,
             itemCount: photos.length,
             onPageChanged: (index) => setState(() => _index = index),
