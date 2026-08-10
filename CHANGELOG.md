@@ -1,3 +1,11 @@
+## 1.2.1
+
+- Tests for the desktop and web input path, which had none: mouse wheel zoom,
+  trackpad two-finger pan, trackpad pinch, and the hand-off where a view
+  already pinned at a scale limit leaves the wheel event unclaimed so a list
+  it sits inside keeps scrolling. No behaviour changed; all of it was already
+  correct, and none of it was pinned.
+
 ## 1.2.0
 
 - The sampling filter now follows the zoom. Magnifying and shrinking want
