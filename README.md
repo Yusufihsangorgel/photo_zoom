@@ -72,6 +72,19 @@ annotation layers, no video.
 
 ## Scale limits
 
+Limits are written against two computed scales rather than raw numbers,
+because the number that fits a photo is not the number that fits a map.
+
+![Three viewports side by side holding the same wide image. At contained it
+fits with bars above and below; at covered it fills the frame and the left and
+right edges fall outside; at 1.0 it sits small in the
+middle.](https://raw.githubusercontent.com/Yusufihsangorgel/photo_zoom/main/doc/scale-states.png)
+
+`contained` is the largest scale that still shows the whole image, `covered`
+the smallest that leaves no gaps, and `1.0` is one source pixel per logical
+pixel. Multiply either to get a limit that follows the image instead of
+guessing at it.
+
 ```dart
 PhotoView(
   imageProvider: const NetworkImage('https://example.com/map.png'),
@@ -79,6 +92,10 @@ PhotoView(
   maxScale: PhotoViewComputedScale.covered * 3,
 )
 ```
+
+The figure's numbers are the test fixture's: a 200×100 image in a 400×400
+viewport really is 2.0, 4.0 and 1.0. Redraw it with
+`dart run tool/scale_states_figure.dart`.
 
 ## Gallery
 

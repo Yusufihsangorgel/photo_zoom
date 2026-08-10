@@ -1,3 +1,15 @@
+## 1.2.2
+
+- A figure for `contained`, `covered` and `1.0`. The scale-limits section
+  reached for two computed scales before anything had shown what they do, and
+  they are the part of this API people get wrong. Drawn by
+  `tool/scale_states_figure.dart`, with the widget tests' own fixture, so the
+  2.0 and 4.0 in it are numbers you can check.
+- Drops the fractal zoom from the archive. It was a screenshot entry only, and
+  pub.dev renders screenshots as still thumbnails, so 3.4 MB bought one static
+  frame of something that taught nothing about using the package. The archive
+  goes from 4 MB to 997 KB.
+
 ## 1.2.1
 
 - Tests for the desktop and web input path, which had none: mouse wheel zoom,

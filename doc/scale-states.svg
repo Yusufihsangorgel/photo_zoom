@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="730" height="320" viewBox="0 0 730 320">
+  <rect width="100%" height="100%" fill="#14161C"/>
+  <text x="135.0" y="26" fill="#d8dee9" font-size="16" font-family="Menlo, monospace" text-anchor="middle">contained</text>
+  <text x="135.0" y="44" fill="#8b93a3" font-size="11.5" font-family="Menlo, monospace" text-anchor="middle">scale 2.0</text>
+  <text x="135.0" y="59" fill="#8b93a3" font-size="11.5" font-family="Menlo, monospace" text-anchor="middle">all of it, letterboxed</text>
+  <clipPath id="cola"><rect x="28.0" y="50.0" width="214.0" height="214.0"/></clipPath>
+  <clipPath id="viewa"><rect x="40.0" y="62.0" width="190.0" height="190.0"/></clipPath>
+  <g clip-path="url(#cola)">
+    <rect x="40.0" y="109.5" width="190.0" height="95.0" fill="#ff8f6b" fill-opacity="0.16" stroke="#ff8f6b" stroke-opacity="0.55" stroke-dasharray="4 3" stroke-width="1"/>
+  </g>
+  <g clip-path="url(#viewa)">
+    <rect x="40.0" y="109.5" width="190.0" height="95.0" fill="#7fb3ff" fill-opacity="0.6"/>
+  </g>
+  <rect x="40.0" y="62.0" width="190.0" height="190.0" fill="none" stroke="#39414f" stroke-width="1.5"/>
+  <text x="365.0" y="26" fill="#d8dee9" font-size="16" font-family="Menlo, monospace" text-anchor="middle">covered</text>
+  <text x="365.0" y="44" fill="#8b93a3" font-size="11.5" font-family="Menlo, monospace" text-anchor="middle">scale 4.0</text>
+  <text x="365.0" y="59" fill="#8b93a3" font-size="11.5" font-family="Menlo, monospace" text-anchor="middle">no gaps, edges cropped</text>
+  <clipPath id="colb"><rect x="258.0" y="50.0" width="214.0" height="214.0"/></clipPath>
+  <clipPath id="viewb"><rect x="270.0" y="62.0" width="190.0" height="190.0"/></clipPath>
+  <g clip-path="url(#colb)">
+    <rect x="175.0" y="62.0" width="380.0" height="190.0" fill="#ff8f6b" fill-opacity="0.16" stroke="#ff8f6b" stroke-opacity="0.55" stroke-dasharray="4 3" stroke-width="1"/>
+  </g>
+  <g clip-path="url(#viewb)">
+    <rect x="175.0" y="62.0" width="380.0" height="190.0" fill="#7fb3ff" fill-opacity="0.6"/>
+  </g>
+  <rect x="270.0" y="62.0" width="190.0" height="190.0" fill="none" stroke="#39414f" stroke-width="1.5"/>
+  <text x="595.0" y="26" fill="#d8dee9" font-size="16" font-family="Menlo, monospace" text-anchor="middle">1.0</text>
+  <text x="595.0" y="44" fill="#8b93a3" font-size="11.5" font-family="Menlo, monospace" text-anchor="middle">scale 1.0</text>
+  <text x="595.0" y="59" fill="#8b93a3" font-size="11.5" font-family="Menlo, monospace" text-anchor="middle">one source pixel each</text>
+  <clipPath id="colc"><rect x="488.0" y="50.0" width="214.0" height="214.0"/></clipPath>
+  <clipPath id="viewc"><rect x="500.0" y="62.0" width="190.0" height="190.0"/></clipPath>
+  <g clip-path="url(#colc)">
+    <rect x="547.5" y="133.25" width="95.0" height="47.5" fill="#ff8f6b" fill-opacity="0.16" stroke="#ff8f6b" stroke-opacity="0.55" stroke-dasharray="4 3" stroke-width="1"/>
+  </g>
+  <g clip-path="url(#viewc)">
+    <rect x="547.5" y="133.25" width="95.0" height="47.5" fill="#7fb3ff" fill-opacity="0.6"/>
+  </g>
+  <rect x="500.0" y="62.0" width="190.0" height="190.0" fill="none" stroke="#39414f" stroke-width="1.5"/>
+  <text x="365.0" y="298" fill="#8b93a3" font-size="11.5" font-family="Menlo, monospace" text-anchor="middle">a 200x100 image in a 400x400 viewport; dashed means outside the viewport</text>
+</svg>
