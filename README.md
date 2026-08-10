@@ -175,6 +175,19 @@ while already at `maxScale`, or a trackpad pan with nowhere left to pan, falls
 through to an ancestor scrollable, so a photo in a scrolling page does not trap
 the wheel.
 
+![Two feeds side by side with a photo in each. On the left the photo is
+outlined and the caption reads "the photo zooms"; on the right the feed is
+outlined and it reads "the feed scrolls". The only difference stated above them
+is whether the photo has any zoom
+left.](https://raw.githubusercontent.com/Yusufihsangorgel/photo_zoom/main/doc/wheel-handoff.png)
+
+The two failure modes this sits between are both silent. A viewer that always
+claims the wheel traps a reader inside the post; one that never claims it
+cannot zoom on a desktop at all — `photo_view 0.15.0` has no `PointerSignal`
+handling anywhere in its `lib/`. Eleven tests in `test/pointer_signal_test.dart`
+pin this, the hand-off included. Redraw the figure with
+`dart run tool/wheel_handoff_figure.dart`.
+
 ## Accessibility
 
 The current zoom is exposed to screen readers as a percentage of `initialScale`,

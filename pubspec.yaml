@@ -3,7 +3,7 @@ description: >-
   Pan, zoom, rotate and swipe a photo gallery. Double tap and pinch zoom where
   you touch; mouse wheel on desktop. A type-safe, maintained alternative to
   photo_view.
-version: 1.2.2
+version: 1.2.3
 repository: https://github.com/Yusufihsangorgel/photo_zoom
 issue_tracker: https://github.com/Yusufihsangorgel/photo_zoom/issues
 
@@ -24,6 +24,10 @@ screenshots:
       the API is written against are visible rather than described.
     path: doc/scale-states.png
 
+  - description: >-
+      Where a mouse wheel goes when a photo sits in a feed: to the photo while
+      it can still zoom, and to the feed once it cannot.
+    path: doc/wheel-handoff.png
 environment:
   sdk: ^3.8.0
   flutter: ">=3.32.0"
