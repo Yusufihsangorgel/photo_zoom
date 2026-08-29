@@ -1003,38 +1003,37 @@ void main() {
       },
     );
 
-    testWidgets(
-      'a wheel event it cannot use is left to an ancestor scrollable',
-      (tester) async {
-        final scrollController = ScrollController();
-        addTearDown(scrollController.dispose);
-        await tester.pumpWidget(
-          harness(
-            size: const Size(400, 600),
-            child: ListView(
-              controller: scrollController,
-              children: [
-                SizedBox(
-                  height: 400,
-                  child: PhotoView(
-                    imageProvider: TestImageProvider(image),
-                    // Pinned at the contained scale: no wheel event can do anything.
-                    minScale: PhotoViewComputedScale.contained,
-                    maxScale: PhotoViewComputedScale.contained,
-                  ),
+    testWidgets('a wheel event it cannot use is left to an ancestor scrollable', (
+      tester,
+    ) async {
+      final scrollController = ScrollController();
+      addTearDown(scrollController.dispose);
+      await tester.pumpWidget(
+        harness(
+          size: const Size(400, 600),
+          child: ListView(
+            controller: scrollController,
+            children: [
+              SizedBox(
+                height: 400,
+                child: PhotoView(
+                  imageProvider: TestImageProvider(image),
+                  // Pinned at the contained scale: no wheel event can do anything.
+                  minScale: PhotoViewComputedScale.contained,
+                  maxScale: PhotoViewComputedScale.contained,
                 ),
-                const SizedBox(height: 2000),
-              ],
-            ),
+              ),
+              const SizedBox(height: 2000),
+            ],
           ),
-        );
-        await tester.pump();
+        ),
+      );
+      await tester.pump();
 
-        await scrollAt(tester, const Offset(200, 200), const Offset(0, 100));
-        // Nothing to zoom, so the scroll fell through and the list moved.
-        expect(scrollController.offset, greaterThan(0));
-      },
-    );
+      await scrollAt(tester, const Offset(200, 200), const Offset(0, 100));
+      // Nothing to zoom, so the scroll fell through and the list moved.
+      expect(scrollController.offset, greaterThan(0));
+    });
   });
 
   group('filter quality', () {
