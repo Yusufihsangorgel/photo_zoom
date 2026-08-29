@@ -95,9 +95,8 @@ void main() {
 
     test('are one-sided about a top-left base position', () {
       // Anchored at the left edge, the child can only be dragged left.
-      final range = geometryFor(
-        basePosition: Alignment.topLeft,
-      ).cornersX(scale: 4);
+      final range = geometryFor(basePosition: Alignment.topLeft)
+          .cornersX(scale: 4);
       expect(range.min, -400);
       expect(range.max, 0);
     });

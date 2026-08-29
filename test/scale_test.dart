@@ -117,9 +117,8 @@ void main() {
       // `PhotoView.maxScale` defaults to `PhotoViewScale.value(infinity)`,
       // meaning no upper limit, so the check above must not reject it.
       expect(
-        PhotoViewScale.value(
-          double.infinity,
-        ).resolve(const Size(400, 400), const Size(200, 100)),
+        PhotoViewScale.value(double.infinity)
+            .resolve(const Size(400, 400), const Size(200, 100)),
         double.infinity,
       );
       expect(

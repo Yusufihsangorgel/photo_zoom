@@ -12,8 +12,10 @@ import 'photo_view_scale_state.dart';
 typedef PhotoViewGalleryPageChangedCallback = void Function(int index);
 
 /// Signature for [PhotoViewGallery.builder].
-typedef PhotoViewGalleryBuilder =
-    PhotoViewGalleryPageOptions Function(BuildContext context, int index);
+typedef PhotoViewGalleryBuilder = PhotoViewGalleryPageOptions Function(
+  BuildContext context,
+  int index,
+);
 
 /// A swipeable series of [PhotoView]s in a [PageView].
 ///
