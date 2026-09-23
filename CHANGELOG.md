@@ -1,3 +1,19 @@
+## 1.2.4
+
+- A one-finger pan now starts from where the finger went down, not from where
+  the scale recognizer was accepted. The double-tap recognizer is in the same
+  gesture arena: on touch the pan was accepted only after 18 px of travel
+  (`kDoubleTapTouchSlop`; 1 px for a mouse), and the travel before that was
+  never applied. With synthesized events (Flutter 3.41.2, a 1000x800 image in a
+  400x400 view at scale 1.0, ten moves 16 ms apart) a 24 px touch drag moved
+  the image 4.8 px, a 36 px drag 14.4 px and a 64 px drag 44.8 px, and an 8 px
+  mouse drag moved it 5.6 px. Each now moves it the full length of the drag. On
+  touch the image still stays put for the first 18 px and then catches up with
+  the finger in one frame. A drag of 18 px or less still does not pan, and
+  double tap is unchanged. Drags along a `PhotoViewGestureDetectorScope` axis
+  were already complete. `test/short_pan_dead_zone_test.dart` fails on 1.2.3
+  with 4.8 px. Not measured on a device.
+
 ## 1.2.3
 
 - A figure for the wheel hand-off. The desktop section described it in a
