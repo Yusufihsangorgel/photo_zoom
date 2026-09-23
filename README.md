@@ -237,6 +237,7 @@ Most code moves across with the import alone. What differs:
 | `PhotoViewControllerValue.rotationFocusPoint` | removed | It was stored and streamed but never reached the transform |
 | `PhotoViewScaleState.isScaleStateZooming` | `.isZooming` | |
 | `tightMode: true` | removed | Wrap in a `SizedBox` |
+| a wrapper forwarding `null` to `minScale`, `maxScale`, `initialScale`, `basePosition`, `scaleStateCycle` or `disableGestures` | pass the default, or leave the argument out | Non-nullable; see [Forwarding your own options](#forwarding-your-own-options) |
 | `PhotoViewGestureDetectorScope(axis: null)` | `axis` is required | A scope without an axis did nothing |
 | `PhotoViewGallery(..., scaleStateChangedCallback:)` | unchanged | |
 | double tap zooms towards `basePosition` | it zooms at the tap | [#82], [#394], [#538] |
@@ -251,6 +252,39 @@ Most code moves across with the import alone. What differs:
 
 Controllers behave the same in one respect worth repeating: whoever creates one
 disposes it.
+
+### Forwarding your own options
+
+photo_view accepted `null` for these parameters of `PhotoView` and
+`PhotoViewGalleryPageOptions` and put a default in its place. Here they are
+non-nullable, and each default is the value photo_view substituted for `null`.
+An options class of your own that forwards `null` stops compiling: give its
+fields these defaults, or leave the argument out.
+
+| Parameter | photo_view 0.15.0 | When `null` | photo_zoom |
+|---|---|---|---|
+| `minScale` | `dynamic` | `0.0` | `PhotoViewScale`, default `PhotoViewScale.value(0)` |
+| `maxScale` | `dynamic` | `double.infinity` | `PhotoViewScale`, default `PhotoViewScale.value(double.infinity)` |
+| `initialScale` | `dynamic` | `PhotoViewComputedScale.contained` | `PhotoViewScale`, default `PhotoViewComputedScale.contained` |
+| `basePosition` | `Alignment?` | `Alignment.center` | `Alignment`, default `Alignment.center` |
+| `scaleStateCycle` | `ScaleStateCycle?` | `defaultScaleStateCycle` | `ScaleStateCycle`, default `defaultScaleStateCycle` |
+| `disableGestures` | `bool?` | `false` | `bool`, default `false` |
+
+`defaultScaleStateCycle` maps the scale states the same way in both packages.
+`example/lib/forwarding_options.dart` is such a class, and
+`example/test/forwarding_options_test.dart` checks that a field left out gives
+the same page options as the argument left out (analyzed and tested with
+Flutter 3.41.2 on 2026-09-23).
+
+Sources, checked 2026-09-23: photo_view 0.15.0
+[`photo_view.dart`](https://github.com/bluefireteam/photo_view/blob/v0.15.0/lib/photo_view.dart#L361-L409),
+[`photo_view_gallery.dart`](https://github.com/bluefireteam/photo_view/blob/v0.15.0/lib/photo_view_gallery.dart#L383-L425)
+and the `null` fallbacks in
+[`photo_view_wrappers.dart`](https://github.com/bluefireteam/photo_view/blob/v0.15.0/lib/src/photo_view_wrappers.dart#L179-L205);
+photo_zoom
+[`photo_view.dart`](https://github.com/Yusufihsangorgel/photo_zoom/blob/1d152f20d786c225e5bb1b1af107ef8109586977/lib/src/photo_view.dart#L89-L99)
+and
+[`photo_view_gallery.dart`](https://github.com/Yusufihsangorgel/photo_zoom/blob/1d152f20d786c225e5bb1b1af107ef8109586977/lib/src/photo_view_gallery.dart#L329-L361).
 
 ## Example
 
