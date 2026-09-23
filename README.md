@@ -15,6 +15,11 @@ import 'package:photo_zoom/photo_zoom.dart';
 PhotoView(imageProvider: const AssetImage('assets/photo.jpg'))
 ```
 
+Used by [chaldea](https://github.com/chaldea-center/chaldea), an open-source
+Fate/Grand Order planner that moved over from photo_view, and by
+[rpass](https://github.com/GodCount/rpass-flutter), a KeePass client, for its
+attachment preview.
+
 ## Why this instead of what you already have
 
 **Instead of `InteractiveViewer`.** Flutter's own viewer pans and pinches, and
