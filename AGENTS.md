@@ -8,7 +8,7 @@ Do not reach for this when `InteractiveViewer` already covers the case. `Interac
 
 ## Usage
 
-Import `package:photo_zoom/photo_zoom.dart` only. `PhotoView` fills a finite box; a `Scaffold` body is one. From `example/lib/anchored_zoom_page.dart`:
+Import `package:photo_zoom/photo_zoom.dart` only. `PhotoView` fills a finite box; a `Scaffold` body is one. Asset and scale limits from `example/lib/anchored_zoom_page.dart`:
 
 ```dart
 Scaffold(
@@ -46,7 +46,7 @@ PhotoViewGallery.builder(
 
 **Parent sizes the viewport** — `PhotoView` fills the box it is given. `PhotoView.customSize` overrides that box. It must be finite: `Scaffold` body, `SizedBox`, `Expanded`, or a route. Unbounded constraints and no `customSize` assert. `PhotoView.customChild` needs `PhotoView.childSize` (the child's intrinsic size); leaving it null uses the viewport, so `PhotoViewComputedScale.contained` resolves to `1.0`.
 
-**Gestures vs an enclosing scrollable** — `PhotoViewGallery` wraps its `PageView` in `PhotoViewGestureDetectorScope(axis: scrollDirection)` (`scrollDirection` on `PhotoViewGallery`, default `Axis.horizontal`). A lone `PhotoView` inside a `ListView`, `PageView`, or `Dismissible` does not. Wrap it; `axis` is required and must match the ancestor:
+**Gestures vs an enclosing scrollable** — `PhotoViewGallery` wraps its `PageView` in a `PhotoViewGestureDetectorScope` whose `axis` is `scrollDirection` (default `Axis.horizontal`). A lone `PhotoView` inside a `ListView`, `PageView`, or `Dismissible` does not. Wrap it; `axis` is required and must match the ancestor:
 
 ```dart
 PhotoViewGestureDetectorScope(
@@ -61,7 +61,7 @@ Without the scope the view does not yield the drag. Wheel and trackpad: `PhotoVi
 
 ## Mistakes
 
-- **`PhotoView` in a `Column` or `ListView` with no height.** Symptom: debug assert `PhotoView was given unbounded constraints` (release: infinite viewport, broken layout). Fix: `Expanded`, `SizedBox(height: ...)`, or `customSize`. A gesture scope does not replace a bounded box.
+- **`PhotoView` in a `Column` or `ListView` with no height.** Symptom: debug assert `PhotoView was given unbounded constraints` (release: infinite viewport, broken layout). Fix: `Expanded`, a height-bounded `SizedBox`, or `customSize`. A gesture scope does not replace a bounded box.
 - **`PhotoView` inside `ListView`/`PageView` without `PhotoViewGestureDetectorScope`.** Symptom: parent scroll and photo pan claim the same drag — paging a zoomed image, or a list that will not move. No exception. Fix: wrap with the scope, `axis` matching the parent. For paging photos, use `PhotoViewGallery` instead of a hand-rolled `PageView`.
 - **`PhotoView` wrapped in `InteractiveViewer`, or a `customChild` that pans or taps.** Symptom: pinch and pan fight. No exception. Fix: do not nest the two. For a child with its own handlers, `PhotoView.disableGestures: true` and drive `PhotoViewController`.
 - **Caller-created controller not disposed, or disposed while the view is mounted.** Symptom: leak, or `ValueNotifier` used after dispose. Fix: `dispose()` in the creating `State`, after the view is gone. If the caller does not need the controller, omit it.
@@ -73,7 +73,7 @@ Without the scope the view does not yield the drag. Wheel and trackpad: `PhotoVi
 
 | Path | Role |
 |------|------|
-| `lib/photo_zoom.dart` | Public API. Do not import `lib/src/`. |
+| `lib/photo_zoom.dart` | Public API (`package:photo_zoom/photo_zoom.dart`). Do not import `lib/src/`. |
 | `lib/src/` | Implementation. |
 | `test/` | Widget tests. |
 | `example/lib/main.dart` | Gallery. |
