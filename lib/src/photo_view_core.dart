@@ -461,6 +461,33 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
     _startScale = _scale;
     _startPosition = widget.controller.position;
     _startRotation = widget.controller.rotation;
+
+    // A pan anchored at the pointer-down catches up with the travel made
+    // before the recognizer was accepted, even if no update follows. Left to
+    // the first update while a drag to dismiss could still claim the gesture.
+    if (details case AnchoredScaleStartDetails(
+      :final acceptedLocalFocalPoint,
+    ) when acceptedLocalFocalPoint != details.localFocalPoint) {
+      if (widget.onDismiss != null && _hasNothingToPan) return;
+      final scale = _startScale!;
+      final rotation = _startRotation!;
+      final position = _geometry.positionForFocalZoom(
+        startFocal: details.localFocalPoint,
+        currentFocal: acceptedLocalFocalPoint,
+        startScale: scale,
+        startPosition: _startPosition!,
+        newScale: scale,
+        startRotation: rotation,
+        newRotation: rotation,
+      );
+      _writeController(
+        PhotoViewControllerValue(
+          scale: scale,
+          position: _clamp(position, scale),
+          rotation: rotation,
+        ),
+      );
+    }
   }
 
   void _onScaleUpdate(ScaleUpdateDetails details) {

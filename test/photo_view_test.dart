@@ -414,8 +414,10 @@ void main() {
       );
 
       final gesture = await tester.startGesture(const Offset(200, 200));
-      // The first move is eaten by the pan slop before the recogniser starts,
-      // so the pan being measured has to be a later one.
+      // The first move carries the pointer past the double-tap recogniser's
+      // 18 px slop (kDoubleTapTouchSlop, not the pan slop); only then is the
+      // pan recogniser accepted. The pan is anchored at the pointer-down, so
+      // both moves count.
       await gesture.moveBy(const Offset(60, 0));
       await tester.pump();
       await gesture.moveBy(const Offset(50, 0));
@@ -424,7 +426,7 @@ void main() {
       await gesture.up();
       await tester.pumpAndSettle();
 
-      expect(panned, closeToD(50));
+      expect(panned, closeToD(110));
       expect(controller.position.dx, greaterThan(0));
     });
   });

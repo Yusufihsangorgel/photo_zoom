@@ -64,6 +64,7 @@ class PhotoViewGestureDetector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final axis = PhotoViewGestureDetectorScope.of(context)?.axis;
+    final onScaleStart = this.onScaleStart;
 
     return RawGestureDetector(
       behavior: behavior,
@@ -91,7 +92,10 @@ class PhotoViewGestureDetector extends StatelessWidget {
                 ..hitDetector = hitDetector
                 ..validateAxis = axis
                 ..dragStartBehavior = DragStartBehavior.start
-                ..onStart = onScaleStart
+                ..onStart = onScaleStart == null
+                    ? null
+                    : ((details) =>
+                          onScaleStart(instance._anchorFirstStart(details)))
                 ..onUpdate = onScaleUpdate
                 ..onEnd = onScaleEnd,
             ),
@@ -131,6 +135,10 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
   Offset? _currentFocalPoint;
   bool _tracking = false;
 
+  // The down of the contact's first pointer, kept until the contact's first
+  // onStart or until that pointer lifts.
+  PointerDownEvent? _firstDown;
+
   @override
   void addAllowedPointer(PointerDownEvent event) {
     if (!_tracking) {
@@ -138,6 +146,7 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
       _pointerLocations.clear();
       _previousFocalPoint = null;
       _currentFocalPoint = null;
+      _firstDown = event;
     }
     super.addAllowedPointer(event);
   }
@@ -145,11 +154,38 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
   @override
   void didStopTrackingLastPointer(int pointer) {
     _tracking = false;
+    _firstDown = null;
     super.didStopTrackingLastPointer(pointer);
+  }
+
+  /// Moves the contact's first single-pointer [details] back to where that
+  /// pointer went down.
+  ///
+  /// The recognizer is often accepted only once a double tap is ruled out,
+  /// which on touch takes more than 18 px of travel, and it starts at wherever
+  /// the pointer is by then. A pan measured from there drops that travel.
+  /// Later starts in the same contact, such as the one after a pinch drops to
+  /// one finger, are passed through untouched.
+  ScaleStartDetails _anchorFirstStart(ScaleStartDetails details) {
+    final down = _firstDown;
+    _firstDown = null;
+    if (down == null || details.pointerCount != 1) return details;
+    return AnchoredScaleStartDetails(
+      focalPoint: down.position,
+      localFocalPoint: down.localPosition,
+      pointerCount: details.pointerCount,
+      sourceTimeStamp: details.sourceTimeStamp,
+      kind: details.kind,
+      acceptedLocalFocalPoint: details.localFocalPoint,
+    );
   }
 
   @override
   void handleEvent(PointerEvent event) {
+    if ((event is PointerUpEvent || event is PointerCancelEvent) &&
+        event.pointer == _firstDown?.pointer) {
+      _firstDown = null;
+    }
     if (validateAxis != null) {
       _trackPointer(event);
       if (event is PointerMoveEvent) _acceptIfChildCanPan(event);
@@ -188,6 +224,28 @@ class PhotoViewGestureRecognizer extends ScaleGestureRecognizer {
       acceptGesture(event.pointer);
     }
   }
+}
+
+/// A [ScaleStartDetails] placed where the gesture's pointer went down rather
+/// than where the recognizer was accepted.
+///
+/// [PhotoViewGestureRecognizer] reports the first start of a single-pointer
+/// contact this way, so a pan can be measured from the pointer-down.
+class AnchoredScaleStartDetails extends ScaleStartDetails {
+  /// Creates the details, with [focalPoint] and [localFocalPoint] at the
+  /// pointer-down.
+  AnchoredScaleStartDetails({
+    super.focalPoint,
+    super.localFocalPoint,
+    super.pointerCount,
+    super.sourceTimeStamp,
+    super.kind,
+    required this.acceptedLocalFocalPoint,
+  });
+
+  /// Where the pointer was when the recognizer was accepted, in local
+  /// coordinates.
+  final Offset acceptedLocalFocalPoint;
 }
 
 /// Tells a descendant [PhotoView] which axis an ancestor scrollable scrolls
