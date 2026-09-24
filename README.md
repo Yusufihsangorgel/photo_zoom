@@ -292,8 +292,11 @@ and
 `PhotoViewGallery` with a live zoom readout.
 
 ```sh
-cd example && flutter run
+cd example && flutter create . && flutter run
 ```
+
+`flutter create .` is needed once: the example's platform folders are
+generated rather than carried in the repository.
 
 ## License
 
