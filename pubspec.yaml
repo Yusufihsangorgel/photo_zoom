@@ -1,18 +1,15 @@
 name: photo_zoom
-description: >-
-  Pan, zoom, rotate and swipe a photo gallery. Double tap and pinch zoom where
-  you touch; mouse wheel on desktop. A type-safe, maintained alternative to
-  photo_view.
+description: "Flutter photo gallery and image viewer with pinch zoom, pan, rotation, double-tap zoom and desktop mouse-wheel control. An alternative to photo_view."
 version: 1.2.4
 repository: https://github.com/Yusufihsangorgel/photo_zoom
 issue_tracker: https://github.com/Yusufihsangorgel/photo_zoom/issues
 
 topics:
-  - image
-  - zoom
-  - gallery
-  - viewer
-  - gestures
+  - pinch-zoom
+  - photo-gallery
+  - image-viewer
+  - double-tap-zoom
+  - mouse-wheel
 
 screenshots:
   - description: >-
