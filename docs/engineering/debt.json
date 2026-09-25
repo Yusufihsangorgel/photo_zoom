@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "package": "photo_zoom",
+  "survey_digest": "f90f45c8a172068c3ed3b9488ba5a7cb4e58efa93c380d2d9a70b399349ec35e",
+  "items": [
+    {
+      "id": "photo_zoom-D001",
+      "source_index": 1,
+      "source_item_digest": "db6829b87a582886ddaacb9adc6e4e83e32760d6a178087ee8f35838bd143b3c",
+      "baseline_revision": "e382383",
+      "status": "open",
+      "size": "small",
+      "locations": [
+        {
+          "path": "lib/src/photo_view_core.dart",
+          "lines": "180-183,460-463,945-947"
+        }
+      ],
+      "kind": "bug / untested behavior",
+      "observation": "_startScale (and _startFocal, _startPosition, _startRotation) is written only at :460-463 and never returns to null. _inMotion reads `_startScale != null` and stays true after the first gesture. As a result the default filter stays at FilterQuality.medium on a zoomed, idle image, while the doc (:924-927) says 'high when the transform settles'. The filter tests (test/photo_view_test.dart:1041-1107) only write controller.scale and use no gesture; they miss the bug for that reason.",
+      "certainty": "probable",
+      "proposed_fix": "At the end of _onScaleEnd (after the fields are read) and on the dismiss path, set the _start* fields back to null. Test: zoom with two fingers, pumpAndSettle, expect FilterQuality.high. Following the repository pattern, commit the red test first.",
+      "related_rule_ids": [
+        "photo_zoom/PZ-10"
+      ],
+      "issue_url": null,
+      "closure_criteria": "The _start* fields return to null at the end of _onScaleEnd and on the dismiss path. A test that zooms with two fingers, pumps and settles and expects FilterQuality.high is committed red first.",
+      "review_trigger": "Before modifying the affected code",
+      "resolution": null
+    },
+    {
+      "id": "photo_zoom-D002",
+      "source_index": 2,
+      "source_item_digest": "9b281d3859f1e700f624bc619ba55e5d5d1aca6337e858e849a0f6557692de9b",
+      "baseline_revision": "e382383",
+      "status": "open",
+      "size": "medium",
+      "locations": [
+        {
+          "path": "lib/src/photo_view.dart",
+          "lines": "75-147,380-440"
+        },
+        {
+          "path": "lib/src/image_wrapper.dart",
+          "lines": "20-130,249-278"
+        },
+        {
+          "path": "lib/src/photo_view_core.dart",
+          "lines": "41-161"
+        },
+        {
+          "path": "lib/src/photo_view_gallery.dart",
+          "lines": "55-100,248-311,321-370"
+        }
+      ],
+      "kind": "duplicate logic / many touch points per change (shotgun surgery)",
+      "observation": "About 20 options are hand repeated in 11 places: 2 PhotoView constructors and two build calls; the ImageWrapper constructor, fields and forwarding; 2 PhotoViewCore constructors; 2 gallery constructors; 2 page-option constructors; two calls in the gallery. If a new option is skipped in one place it is silently lost.",
+      "certainty": "confirmed",
+      "proposed_fix": "Define an unexported immutable options object in src. Let the PhotoView → ImageWrapper → PhotoViewCore chain carry this object; keep the public constructors unchanged. The existing 159 widget tests act as the safety net; also add a forwarding test that checks 'every option reaches the engine'.",
+      "related_rule_ids": [
+        "photo_zoom/PZ-12"
+      ],
+      "issue_url": null,
+      "closure_criteria": "PhotoView, ImageWrapper, PhotoViewCore and the gallery carry one internal options object while the public constructors keep their signatures. A forwarding test checks that every option reaches the engine and the widget tests pass.",
+      "review_trigger": "Before modifying the affected code",
+      "resolution": null
+    },
+    {
+      "id": "photo_zoom-D003",
+      "source_index": 3,
+      "source_item_digest": "de23308b69ff65891ebe46f6ac61c96f6e129eae0b97f34f1a5a289a24edd38c",
+      "baseline_revision": "e382383",
+      "status": "open",
+      "size": "small",
+      "locations": [
+        {
+          "path": "lib/src/photo_view.dart",
+          "lines": "12-14,89-91,105,126-128,142"
+        },
+        {
+          "path": "lib/src/photo_view_gallery.dart",
+          "lines": "59,74,84,99,329-331,342,354-356,367"
+        }
+      ],
+      "kind": "duplicate default value",
+      "observation": "dismissThreshold 0.2 is repeated six times. The black background is written in two different forms (_kDefaultDecoration and an inline BoxDecoration). The scale defaults are separate literals in four constructors.",
+      "certainty": "confirmed",
+      "proposed_fix": "Define private constants in a single src file; let all constructors reference them. Behavior does not change.",
+      "related_rule_ids": [],
+      "issue_url": null,
+      "closure_criteria": "dismissThreshold, the background decoration and the scale defaults come from private constants in a single src file. The existing tests show no behavior change.",
+      "review_trigger": "Before modifying the affected code",
+      "resolution": null
+    },
+    {
+      "id": "photo_zoom-D004",
+      "source_index": 4,
+      "source_item_digest": "7fa529e20b5af5887a94752c6c862f1c4cf5be5ed57d6c741ffcb8242a96eeb6",
+      "baseline_revision": "e382383",
+      "status": "open",
+      "size": "small",
+      "locations": [
+        {
+          "path": "lib/src/photo_view_core.dart",
+          "lines": "915-929,936"
+        }
+      ],
+      "kind": "misplaced dartdoc",
+      "observation": "The paragraph 'The sampling to use when the caller has not chosen one' describes the _wantedFilterQuality getter (:936) but is stuck to the doc of _syncFilterQuality (:929). The getter has no doc of its own.",
+      "certainty": "confirmed",
+      "proposed_fix": "Move the paragraph to :936; keep a one-line doc on _syncFilterQuality.",
+      "related_rule_ids": [],
+      "issue_url": null,
+      "closure_criteria": "The sampling paragraph documents _wantedFilterQuality at its definition and _syncFilterQuality keeps a one-line doc.",
+      "review_trigger": "Before modifying the affected code",
+      "resolution": null
+    },
+    {
+      "id": "photo_zoom-D005",
+      "source_index": 5,
+      "source_item_digest": "52929700024979d3f02f4ffb9c75e7c24dc240d23b875c12092dbd6730e168eb",
+      "baseline_revision": "e382383",
+      "status": "open",
+      "size": "small",
+      "locations": [
+        {
+          "path": "lib/src/photo_view_core.dart",
+          "lines": "30,564"
+        }
+      ],
+      "kind": "unnamed or undocumented constant (J5)",
+      "observation": "_kSettleDuration, unlike the other _k constants, has no doc. At :564 a 1e-6 sits as a bare epsilon.",
+      "certainty": "confirmed",
+      "proposed_fix": "Add a one-line doc to _kSettleDuration; define a named _k constant for the epsilon.",
+      "related_rule_ids": [
+        "photo_zoom/PZ-07"
+      ],
+      "issue_url": null,
+      "closure_criteria": "_kSettleDuration carries a one-line doc and the 1e-6 epsilon at line 564 is a named _k constant.",
+      "review_trigger": "Before modifying the affected code",
+      "resolution": null
+    },
+    {
+      "id": "photo_zoom-D006",
+      "source_index": 6,
+      "source_item_digest": "814c6342e2c04f3bc817abaf7603d7b5b134be9b6923c8f3d99475a9b5f3119c",
+      "baseline_revision": "e382383",
+      "status": "open",
+      "size": "large",
+      "locations": [
+        {
+          "path": "lib/src/photo_view_core.dart",
+          "lines": "167-948"
+        }
+      ],
+      "kind": "single responsibility (bloated class)",
+      "observation": "_PhotoViewCoreState carries six responsibilities in about 780 lines: controller synchronization, animation, gestures, drag-to-dismiss, pointer signals, semantics/filter.",
+      "certainty": "confirmed",
+      "proposed_fix": "Record it. When a section is touched, extract that section into a private helper class (dismiss first, then pointer signals); dismiss_test and pointer_signal_test act as the safety net. Until then do not grow the class.",
+      "related_rule_ids": [],
+      "issue_url": null,
+      "closure_criteria": "Drag-to-dismiss and pointer signal handling live in private helper classes extracted from _PhotoViewCoreState. dismiss_test and pointer_signal_test pass.",
+      "review_trigger": "Before modifying the affected code",
+      "resolution": null
+    },
+    {
+      "id": "photo_zoom-D007",
+      "source_index": 7,
+      "source_item_digest": "0a1880da5ed579229d1c944977568341fe0f6e878b760be083c215c6eae55b3e",
+      "baseline_revision": "e382383",
+      "status": "open",
+      "size": "small",
+      "locations": [
+        {
+          "path": "lib/src/photo_view_controller.dart",
+          "lines": "103-114"
+        }
+      ],
+      "kind": "duplicate construction",
+      "observation": "The initial PhotoViewControllerValue is constructed twice with the same arguments.",
+      "certainty": "confirmed",
+      "proposed_fix": "Write a private redirecting constructor that takes a single value. The value is immutable; sharing it in two places is safe.",
+      "related_rule_ids": [],
+      "issue_url": null,
+      "closure_criteria": "The initial PhotoViewControllerValue is constructed once through a private redirecting constructor.",
+      "review_trigger": "Before modifying the affected code",
+      "resolution": null
+    },
+    {
+      "id": "photo_zoom-D008",
+      "source_index": 8,
+      "source_item_digest": "b4405a704db5534f8415f974f53d2cd1821a55bac7d0b05a12a288e8ec908b0e",
+      "baseline_revision": "e382383",
+      "status": "open",
+      "size": "small",
+      "locations": [
+        {
+          "path": ".github/workflows/ci.yaml",
+          "lines": null
+        },
+        {
+          "path": "pubspec.yaml",
+          "lines": null
+        }
+      ],
+      "kind": "CI coverage gap",
+      "observation": "The base flutter >=3.32.0 declared in pubspec is not tested in CI.",
+      "certainty": "confirmed",
+      "proposed_fix": "Add 3.32.0 to the matrix.",
+      "related_rule_ids": [],
+      "issue_url": null,
+      "closure_criteria": "The CI matrix includes Flutter 3.32.0 beside stable.",
+      "review_trigger": "Before modifying the affected code",
+      "resolution": null
+    }
+  ]
+}
