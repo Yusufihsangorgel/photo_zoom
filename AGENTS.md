@@ -4,7 +4,7 @@
 
 `PhotoView` pans, pinches, and double-taps one image (or any widget via `PhotoView.customChild`), zooming at the contact point rather than the centre. `PhotoViewGallery` is a `PageView` of those views: each page keeps its own zoom, and a drag turns the page only after the photo is against its edge.
 
-Do not reach for this when `InteractiveViewer` already covers the case. `InteractiveViewer` pans and pinches; it has no double-tap scale cycle, no contained/covered/1.0 limits (`PhotoViewComputedScale`), no gallery, no image-edge pan clamp (it clamps against the wrapping widget, so a letterboxed image can be dragged into the empty margin), and no mouse-wheel or trackpad zoom (`PhotoView.enableScrollZoom`). Skip both for a decorative `Image` with `BoxFit`.
+Do not reach for this when `InteractiveViewer` already covers the case. `InteractiveViewer` pans and pinches. It has no double-tap scale cycle, no contained/covered/1.0 limits (`PhotoViewComputedScale`), no gallery, and no image-edge pan clamp: it clamps against the wrapping widget, and a letterboxed image can be dragged into the empty margin. Skip both for a decorative `Image` with `BoxFit`.
 
 ## Usage
 

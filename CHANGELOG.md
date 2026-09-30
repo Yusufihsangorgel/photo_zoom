@@ -18,6 +18,10 @@
   this repository shows. The example app is described instead.
 - README: the example run command now includes the one-time `flutter create`
   step, since the platform folders are not in the repository.
+- Docs: a "Which one fits" list in the README that says when photo_view or
+  `InteractiveViewer` is the better choice, `doc/migrating-from-photo_view.md`
+  with a mapping table and a before and after example, and a fix to AGENTS.md,
+  which said `InteractiveViewer` has no mouse wheel zoom.
 
 ## 1.2.3
 

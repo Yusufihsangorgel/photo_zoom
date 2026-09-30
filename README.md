@@ -44,6 +44,29 @@ something you can check rather than take on trust.
 `cd example && flutter create . && flutter run --dart-define=start=compare`
 shows the same screen, and the buttons hand the viewer back to you.
 
+### Which one fits
+
+- **photo_zoom over photo_view** when a double tap, a pinch or the mouse wheel
+  should keep the touched point under the finger, when the same app runs on
+  desktop or web and the wheel should zoom, or when you want swipe to dismiss
+  without writing it. photo_view 0.15.0 has no `PointerSignalEvent` handling in
+  its `lib/`, and its latest release on pub.dev is from 2024-04-17 (checked
+  2026-09-30).
+- **photo_view over photo_zoom** when the app already uses it and centre zoom
+  is fine. A move has a cost, listed in the
+  [migration guide](https://github.com/Yusufihsangorgel/photo_zoom/blob/main/doc/migrating-from-photo_view.md).
+  photo_view has been on pub.dev since 2018-05-01. The first release of this
+  package is from 2026-07-17.
+- **photo_view over photo_zoom** when your code depends on `tightMode`, on the
+  controller streams, or on passing `null` for options, none of which are
+  carried over. Also when the app is pinned to a Flutter older than 3.32. This
+  package needs it, and photo_view 0.15.0 declares Flutter `>=1.6.0`.
+- **`InteractiveViewer` over both** when the picture is only looked at. It is
+  Flutter's own widget and adds no dependency.
+- **photo_zoom over `InteractiveViewer`** when you need a double tap cycle,
+  limits computed from the image, a gallery, or pan limits that follow the
+  image instead of the widget around it.
+
 ## It gets sharper as you go in, not softer
 
 Magnifying and shrinking want different sampling. `FilterQuality.medium` reads
