@@ -15,10 +15,7 @@ import 'package:photo_zoom/photo_zoom.dart';
 PhotoView(imageProvider: const AssetImage('assets/photo.jpg'))
 ```
 
-Used by [chaldea](https://github.com/chaldea-center/chaldea), an open-source
-Fate/Grand Order planner that moved over from photo_view, and by
-[rpass](https://github.com/GodCount/rpass-flutter), a KeePass client, for its
-attachment preview.
+The example app demonstrates the viewer, the controller and the anchored zoom.
 
 ## Why this instead of what you already have
 
@@ -292,7 +289,9 @@ and
 `PhotoViewGallery` with a live zoom readout.
 
 ```sh
-cd example && flutter run
+cd example
+flutter create --platforms=ios,android,macos .   # once, for the platform folders
+flutter run
 ```
 
 ## License

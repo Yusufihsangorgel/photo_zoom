@@ -14,6 +14,11 @@
   were already complete. `test/short_pan_dead_zone_test.dart` fails on 1.2.3
   with 4.8 px. Not measured on a device.
 
+- README: removes the "Used by" line, which named two projects that nothing in
+  this repository shows. The example app is described instead.
+- README: the example run command now includes the one-time `flutter create`
+  step, since the platform folders are not in the repository.
+
 ## 1.2.3
 
 - A figure for the wheel hand-off. The desktop section described it in a
