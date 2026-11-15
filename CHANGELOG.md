@@ -1,10 +1,3 @@
-## Unreleased
-
-- A gesture matrix in `doc/gesture-matrix.md` maps each answered gesture to
-  the test that pins it. The migration example gains one screen with a section
-  per photo_view API. A new test file, `test/nested_scroll_test.dart`, pins the
-  drag hand-off from a `PhotoView` to an outer scroll view.
-
 ## 1.2.4
 
 - A one-finger pan now starts from where the finger went down, not from where
@@ -29,6 +22,12 @@
   `InteractiveViewer` is the better choice, `doc/migrating-from-photo_view.md`
   with a mapping table and a before and after example, and a fix to AGENTS.md,
   which said `InteractiveViewer` has no mouse wheel zoom.
+- A gesture matrix in `doc/gesture-matrix.md` lists each gesture `PhotoView`
+  and `PhotoViewGallery` answer, with the test that pins it or "no test". The
+  example app's home screen now opens the migration page, which has a section
+  for each part of the photo_view API a typical app uses. A new test file,
+  `test/nested_scroll_test.dart`, pins the drag hand-off from a `PhotoView` to
+  an outer scroll view.
 
 ## 1.2.3
 
