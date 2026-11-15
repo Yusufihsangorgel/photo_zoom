@@ -29,3 +29,25 @@ jobs:
         working-directory: example
       - run: flutter test
         working-directory: example
+
+  # The oldest Flutter that pubspec.yaml accepts. The Dart ^3.8.0 constraint
+  # first shipped in Flutter 3.32.0; 3.32.8 is the last patch of that release.
+  # Code that leans on a newer API fails here before someone on the floor
+  # finds it.
+  floor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.32.8
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter pub get
+        working-directory: example
+      - run: flutter analyze
+        working-directory: example
+      - run: flutter test
+        working-directory: example
