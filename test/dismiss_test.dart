@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/gestures.dart';
 // ignore: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -76,6 +77,35 @@ void main() {
 
       expect(dismissed, 0);
       expect(tester.getTopLeft(find.byType(Image)), offsetCloseTo(rest));
+    },
+  );
+
+  testWidgets(
+    'with iOS Reduce Motion a short drag returns to rest in the next frame',
+    (tester) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(reduceMotion: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      var dismissed = 0;
+      await pumpView(tester, onDismiss: () => dismissed++);
+
+      final rest = tester.getTopLeft(find.byType(Image));
+
+      final gesture = await tester.startGesture(const Offset(200, 200));
+      await gesture.moveBy(const Offset(0, 50));
+      await tester.pump();
+      expect(tester.getTopLeft(find.byType(Image)).dy, greaterThan(rest.dy));
+
+      await gesture.up();
+      await tester.pump();
+
+      expect(dismissed, 0);
+      expect(tester.getTopLeft(find.byType(Image)), offsetCloseTo(rest));
+      expect(tester.binding.hasScheduledFrame, isFalse);
+      // Let the double tap recogniser's timer expire before the test ends.
+      await tester.pump(kDoubleTapTimeout);
     },
   );
 

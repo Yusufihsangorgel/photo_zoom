@@ -18,6 +18,16 @@ PhotoView(imageProvider: const AssetImage('assets/photo.jpg'))
 The example app demonstrates the viewer, the controller, the anchored zoom and
 the migration from photo_view.
 
+| Package | Latest release | Mouse wheel zoom | Double tap zooms at the tapped point | `package:flutter/material.dart` imports in `lib/` |
+|---|---|---|---|---|
+| photo_zoom 1.3.0 | this version | Yes | Yes | 0 |
+| photo_view 0.15.0 | 2024-04-17 | No, there is no `PointerSignalEvent` handling in `lib/` | No, it zooms towards `basePosition` (`photo_view_core.dart:282`) | 3 |
+| extended_image 10.1.0 | 2026-07-12 | Yes (`gesture.dart:234`) | With an `onDoubleTap` callback that calls `handleDoubleTap`. Without one, a double tap returns to the initial scale | 18 |
+| easy_image_viewer 1.5.1 | 2024-06-24 | Through `InteractiveViewer`, with no wheel code in its own `lib/` | Yes from 1x, with `doubleTapZoomable: true` (off by default) | 7 |
+
+Checked on 2026-11-15, the other packages against their published archives on
+pub.dev. Trackpad gestures are not compared.
+
 ## Why this instead of what you already have
 
 **Instead of `InteractiveViewer`.** Flutter's own viewer pans and pinches, and
@@ -219,7 +229,9 @@ pin this, the hand-off included. Redraw the figure with
 The current zoom is exposed to screen readers as a percentage of `initialScale`,
 alongside `semanticLabel`, with increase and decrease actions that zoom in steps.
 When the platform asks for reduced motion, zoom changes jump to their target
-instead of animating.
+instead of animating. Both Android's "Remove animations" and iOS's "Reduce
+Motion" count. The default loading indicator has the label "Loading image" and,
+once the provider reports a total size, a percentage value.
 
 ## Limits
 

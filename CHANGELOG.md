@@ -1,5 +1,39 @@
-## Unreleased
+## 1.3.0
 
+### Behaviour changes
+
+- The default loading and error widgets no longer use Material. Both are
+  painted with the widgets layer, and the error glyph needs no icon font. App
+  tests that look for `find.byType(CircularProgressIndicator)` no longer match
+  the default loading widget. While the image provider has not reported an
+  expected byte count, the default loading ring is drawn whole and does not
+  animate. A screen with an image that never resolves now settles under
+  `pumpAndSettle` (photo_view#569). Once the count is known, the ring fills in
+  proportion. For a Material spinner, import Material and pass
+  `loadingBuilder: (context, event) => const Center(child: CircularProgressIndicator())`.
+- The default loading widget has the semantics label "Loading image" and, when
+  progress is known, a percentage value. The label is English, and a
+  `loadingBuilder` replaces it.
+- No file in `lib/` imports `package:flutter/material.dart` or
+  `package:flutter/cupertino.dart` any more, and a test fails if one does.
+
+### Fixes
+
+- iOS "Reduce Motion" is respected. iOS reports it as
+  `AccessibilityFeatures.reduceMotion`, separate from
+  `MediaQueryData.disableAnimations`, and only the second was read. With Reduce
+  Motion on, a double tap zoom, a scale state change, the spring back after a
+  pinch past a limit, a fling and the return after a short dismiss drag
+  animated anyway. They now jump to their target, as they already did for
+  Android's "Remove animations".
+
+### Docs
+
+- README: a comparison table near the top for photo_view 0.15.0,
+  extended_image 10.1.0 and easy_image_viewer 1.5.1, with the release date,
+  mouse wheel zoom, double tap at the tapped point and the number of Material
+  imports in `lib/`. The cells for the other packages were measured from their
+  published archives on pub.dev on 2026-11-15.
 - A gesture matrix in `doc/gesture-matrix.md` maps each answered gesture to
   the test that pins it. The migration example gains one screen with a section
   per photo_view API. A new test file, `test/nested_scroll_test.dart`, pins the

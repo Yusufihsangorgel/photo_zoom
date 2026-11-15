@@ -1,5 +1,4 @@
-// ignore: deprecated_member_use
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'callbacks.dart';
 import 'image_wrapper.dart';
@@ -16,8 +15,8 @@ const BoxDecoration _kDefaultDecoration = BoxDecoration(
 
 /// A pannable, zoomable, optionally rotatable view of a single image or widget.
 ///
-/// It fills the space it is given, so it needs a bounded box: a [Scaffold] body,
-/// a [SizedBox], an [Expanded], or a route of its own.
+/// It fills the space it is given and needs a bounded box, such as a
+/// `Scaffold` body, a [SizedBox], an [Expanded], or a route of its own.
 ///
 /// ```dart
 /// PhotoView(imageProvider: const AssetImage('assets/photo.jpg'))
@@ -162,15 +161,16 @@ class PhotoView extends StatefulWidget {
 
   /// Shown while [imageProvider] resolves.
   ///
-  /// Defaults to a small centred [CircularProgressIndicator]. The
-  /// [ImageChunkEvent] is `null` for providers that do not report progress, such
-  /// as [AssetImage].
+  /// Defaults to a small centred ring that fills as bytes arrive. It stays
+  /// still while the provider has not reported an expected byte count, and it
+  /// is not a Material `CircularProgressIndicator`. The [ImageChunkEvent] is
+  /// `null` for providers that do not report progress, such as [AssetImage].
   final LoadingBuilder? loadingBuilder;
 
   /// Shown when [imageProvider] fails to resolve.
   ///
-  /// Defaults to a broken-image icon. When this is `null`, the error is also
-  /// rethrown in debug builds so it is not swallowed silently.
+  /// Defaults to a painted broken-image glyph. When this is `null`, the error
+  /// is also rethrown in debug builds so it is not swallowed silently.
   final ImageErrorWidgetBuilder? errorBuilder;
 
   /// Painted behind the image, filling the viewport.

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:photo_zoom/photo_zoom.dart';
+import 'package:photo_zoom/src/default_widgets.dart';
 import 'package:photo_zoom/src/photo_view_geometry.dart';
 import 'package:photo_zoom/src/scale_boundaries.dart';
 
@@ -128,7 +129,7 @@ void main() {
           ),
         ),
       );
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(PhotoViewDefaultLoading), findsOneWidget);
     });
 
     testWidgets('shows the error builder when the image fails', (tester) async {
@@ -757,6 +758,72 @@ void main() {
       expect(tester.binding.hasScheduledFrame, isFalse);
 
       // Let the double tap recogniser's timer expire before the test ends.
+      await tester.pump(kDoubleTapTimeout);
+    });
+
+    testWidgets('jumps when only the iOS Reduce Motion flag is set', (
+      tester,
+    ) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(reduceMotion: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      final controller = newController();
+      // The MediaQuery still says animations are on.
+      await pumpPhotoView(tester, controller: controller);
+
+      await tester.tapAt(const Offset(200, 200));
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.tapAt(const Offset(200, 200));
+      await tester.pump();
+
+      expect(controller.scale, closeToD(4));
+      expect(tester.binding.hasScheduledFrame, isFalse);
+      await tester.pump(kDoubleTapTimeout);
+    });
+
+    testWidgets('jumps when the platform asks to disable animations', (
+      tester,
+    ) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      final controller = newController();
+      // The flag reaches the view through a MediaQuery built from the view, as
+      // in an app.
+      await tester.pumpWidget(
+        MediaQuery.fromView(
+          view: tester.view,
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox.fromSize(
+                size: const Size(400, 400),
+                child: PhotoView(
+                  imageProvider: TestImageProvider(image),
+                  controller: controller,
+                  minScale: const PhotoViewScale.value(0),
+                  maxScale: const PhotoViewScale.value(double.infinity),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(controller.scale, 2);
+
+      await tester.tapAt(const Offset(200, 200));
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.tapAt(const Offset(200, 200));
+      await tester.pump();
+
+      expect(controller.scale, closeToD(4));
+      expect(tester.binding.hasScheduledFrame, isFalse);
       await tester.pump(kDoubleTapTimeout);
     });
 

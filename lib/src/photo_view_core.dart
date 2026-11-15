@@ -212,11 +212,26 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
 
   /// Cached rather than read on demand, because it is needed from gesture
   /// callbacks, where depending on an inherited widget is not allowed.
-  bool _reduceMotion = false;
+  bool _disableAnimations = false;
 
-  /// Cached for the same reason as [_reduceMotion], and used to tell
+  /// Cached for the same reason as [_disableAnimations], and used to tell
   /// magnification from minification in device pixels rather than logical ones.
   double _devicePixelRatio = 1;
+
+  /// Whether to jump to the end of a motion instead of animating it.
+  ///
+  /// Android's "Remove animations" arrives as [MediaQueryData.disableAnimations].
+  /// iOS reports "Reduce Motion" only as `AccessibilityFeatures.reduceMotion`,
+  /// and [MediaQueryData] has no field for it before Flutter 3.50. It is read
+  /// from the platform dispatcher each time it is needed, and a change to the
+  /// setting takes effect at the next gesture.
+  bool get _reduceMotion =>
+      _disableAnimations ||
+      WidgetsBinding
+          .instance
+          .platformDispatcher
+          .accessibilityFeatures
+          .reduceMotion;
 
   /// The sampling currently handed to the image.
   ///
@@ -243,7 +258,7 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _reduceMotion = MediaQuery.disableAnimationsOf(context);
+    _disableAnimations = MediaQuery.disableAnimationsOf(context);
     _devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
   }
 
