@@ -18,7 +18,7 @@
   same scale (as with `minScale` equal to `maxScale`), no longer leaves the
   point it landed on behind. The next `scaleState` set from code was anchored
   at that point instead of returning the image to its resting place. The new
-  double tap tests in `test/photo_view_test.dart` fail without the change; the
+  double tap tests in `test/photo_view_test.dart` fail without the change. The
   one with both limits at 2.0 ends 150 px off centre.
 
 - README: removes the "Used by" line, which named two projects that nothing in
