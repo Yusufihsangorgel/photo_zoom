@@ -1,11 +1,17 @@
 # photo_zoom example
 
-A small app with two screens.
+A small app with three screens.
 
 **Gallery** is the ordinary use: a grid of thumbnails that fly into a full
 screen `PhotoViewGallery`, with a live zoom readout driven by the controller,
 a switch for `enableScrollZoom`, and photos of four different aspect ratios so
 the difference between a contained and a covered scale is visible.
+
+**Migration** is the "after" half of
+[`doc/migrating-from-photo_view.md`](../doc/migrating-from-photo_view.md). It
+is one scrolling page with a labelled section for each photo_view API a typical
+app uses, from `customChild` and `errorBuilder` to `onDismiss` and
+`PhotoViewGestureDetectorScope`.
 
 **Compare** puts `photo_view` and `photo_zoom` side by side on the same image
 and sends a single synthetic double tap into both panes at the same position,

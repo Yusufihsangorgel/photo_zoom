@@ -15,7 +15,8 @@ import 'package:photo_zoom/photo_zoom.dart';
 PhotoView(imageProvider: const AssetImage('assets/photo.jpg'))
 ```
 
-The example app demonstrates the viewer, the controller and the anchored zoom.
+The example app demonstrates the viewer, the controller, the anchored zoom and
+the migration from photo_view.
 
 ## Why this instead of what you already have
 
@@ -308,8 +309,9 @@ and
 
 ## Example
 
-`example/` is a gallery: a grid of thumbnails that fly into a full screen
-`PhotoViewGallery` with a live zoom readout.
+The app in `example/` has three screens. A gallery of thumbnails opens into a
+full screen `PhotoViewGallery`, a migration page mirrors the photo_view guide,
+and a comparison runs photo_view and photo_zoom side by side.
 
 ```sh
 cd example

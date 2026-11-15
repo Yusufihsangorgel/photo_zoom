@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_zoom/photo_zoom.dart';
 
 import 'anchored_zoom_page.dart';
+import 'migrating_from_photo_view.dart';
 
 void main() => runApp(const ExampleApp());
 
@@ -62,6 +63,15 @@ class GridPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('photo_zoom'),
         actions: [
+          TextButton.icon(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (context) => const MigratedPage(),
+              ),
+            ),
+            icon: const Icon(Icons.swap_horiz),
+            label: const Text('Migration'),
+          ),
           TextButton.icon(
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute<void>(

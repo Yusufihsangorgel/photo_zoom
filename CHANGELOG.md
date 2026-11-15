@@ -1,3 +1,10 @@
+## Unreleased
+
+- A gesture matrix in `doc/gesture-matrix.md` maps each answered gesture to
+  the test that pins it. The migration example gains one screen with a section
+  per photo_view API. A new test file, `test/nested_scroll_test.dart`, pins the
+  drag hand-off from a `PhotoView` to an outer scroll view.
+
 ## 1.2.4
 
 - A one-finger pan now starts from where the finger went down, not from where

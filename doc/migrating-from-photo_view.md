@@ -135,17 +135,17 @@ class _DetailState extends State<Detail> {
           maxScale: PhotoViewComputedScale.covered * 3,
           backgroundDecoration: const BoxDecoration(color: Colors.black),
         ),
-        Text('${_scale ?? '--'}'),
+        Text('${_scale ?? '--'}', style: const TextStyle(color: Colors.white)),
       ],
     );
   }
 }
 
-Widget gallery(List<String> urls) => PhotoViewGallery.builder(
-  itemCount: urls.length,
+Widget gallery(List<String> assets) => PhotoViewGallery.builder(
+  itemCount: assets.length,
   builder: (context, index) => PhotoViewGalleryPageOptions(
-    imageProvider: NetworkImage(urls[index]),
-    heroAttributes: PhotoViewHeroAttributes(tag: urls[index]),
+    imageProvider: AssetImage(assets[index]),
+    heroAttributes: PhotoViewHeroAttributes(tag: assets[index]),
     minScale: PhotoViewComputedScale.contained * 0.8,
     maxScale: 4.0,
   ),
@@ -155,7 +155,11 @@ Widget gallery(List<String> urls) => PhotoViewGallery.builder(
 After, with photo_zoom. The full file is
 [`example/lib/migrating_from_photo_view.dart`](../example/lib/migrating_from_photo_view.dart).
 The changes are the import, the stream becoming a `ValueListenableBuilder`, and
-the two `double` scales becoming `PhotoViewScale.value`.
+the two `double` scales becoming `PhotoViewScale.value`. The same file also
+builds `MigratedPage`, one screen with a labelled section per API. The sections
+cover `customChild` with `childSize`, `errorBuilder`, `onTapUp`, `onTapDown`,
+`onScaleEnd`, `onDismiss` with `dismissThreshold`, a gallery, and
+`PhotoViewGestureDetectorScope`. The example app's home screen opens it.
 
 ```dart
 import 'package:flutter/material.dart';
@@ -190,18 +194,21 @@ class _DetailState extends State<Detail> {
         ),
         ValueListenableBuilder<PhotoViewControllerValue>(
           valueListenable: _controller,
-          builder: (context, value, child) => Text('${value.scale ?? '--'}'),
+          builder: (context, value, child) => Text(
+            '${value.scale ?? '--'}',
+            style: const TextStyle(color: Colors.white),
+          ),
         ),
       ],
     );
   }
 }
 
-Widget gallery(List<String> urls) => PhotoViewGallery.builder(
-  itemCount: urls.length,
+Widget gallery(List<String> assets) => PhotoViewGallery.builder(
+  itemCount: assets.length,
   builder: (context, index) => PhotoViewGalleryPageOptions(
-    imageProvider: NetworkImage(urls[index]),
-    heroAttributes: PhotoViewHeroAttributes(tag: urls[index]),
+    imageProvider: AssetImage(assets[index]),
+    heroAttributes: PhotoViewHeroAttributes(tag: assets[index]),
     minScale: PhotoViewComputedScale.contained * 0.8,
     maxScale: const PhotoViewScale.value(4),
   ),
