@@ -34,10 +34,6 @@
   mouse wheel zoom, double tap at the tapped point and the number of Material
   imports in `lib/`. The cells for the other packages were measured from their
   published archives on pub.dev on 2026-11-15.
-- A gesture matrix in `doc/gesture-matrix.md` maps each answered gesture to
-  the test that pins it. The migration example gains one screen with a section
-  per photo_view API. A new test file, `test/nested_scroll_test.dart`, pins the
-  drag hand-off from a `PhotoView` to an outer scroll view.
 
 ## 1.2.4
 
@@ -55,6 +51,13 @@
   were already complete. `test/short_pan_dead_zone_test.dart` fails on 1.2.3
   with 4.8 px. Not measured on a device.
 
+- A double tap that changes nothing, because every step of the cycle is at the
+  same scale (as with `minScale` equal to `maxScale`), no longer leaves the
+  point it landed on behind. The next `scaleState` set from code was anchored
+  at that point instead of returning the image to its resting place. The new
+  double tap tests in `test/photo_view_test.dart` fail without the change. The
+  one with both limits at 2.0 ends 150 px off centre.
+
 - README: removes the "Used by" line, which named two projects that nothing in
   this repository shows. The example app is described instead.
 - README: the example run command now includes the one-time `flutter create`
@@ -63,6 +66,12 @@
   `InteractiveViewer` is the better choice, `doc/migrating-from-photo_view.md`
   with a mapping table and a before and after example, and a fix to AGENTS.md,
   which said `InteractiveViewer` has no mouse wheel zoom.
+- A gesture matrix in `doc/gesture-matrix.md` lists each gesture `PhotoView`
+  and `PhotoViewGallery` answer, with the test that pins it or "no test". The
+  example app's home screen now opens the migration page, which has a section
+  for each part of the photo_view API a typical app uses. A new test file,
+  `test/nested_scroll_test.dart`, pins the drag hand-off from a `PhotoView` to
+  an outer scroll view.
 
 ## 1.2.3
 

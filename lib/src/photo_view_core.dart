@@ -665,7 +665,13 @@ class _PhotoViewCoreState extends State<PhotoViewCore>
   /// to have no focal point at all.
   void _onDoubleTapCancel() => _doubleTapFocal = null;
 
-  void _onDoubleTap() => _nextScaleState();
+  void _onDoubleTap() {
+    _nextScaleState();
+    // A step that moved the cycle has already spent the focal in
+    // [_onScaleStateChanged]. When the cycle stays where it is, no listener
+    // runs, so the focal goes here, as it does in [_onDoubleTapCancel].
+    _doubleTapFocal = null;
+  }
 
   /// Advances the double-tap cycle to the next step that actually changes the
   /// scale.
