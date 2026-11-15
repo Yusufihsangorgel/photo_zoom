@@ -317,6 +317,70 @@ void main() {
       await doubleTapAt(tester, const Offset(150, 150));
       expect(controller.scale, 1);
     });
+
+    testWidgets('a double tap that changes nothing does not leave its focal '
+        'behind', (tester) async {
+      // With both limits at 2.0 every step of the cycle resolves to 2.0, so the
+      // double tap moves the cycle nowhere. Its focal must still go: once the
+      // limits are lifted, a programmatic change returns the child to its
+      // resting place rather than zooming at where that tap landed.
+      final scaleStateController = PhotoViewScaleStateController();
+      addTearDown(scaleStateController.dispose);
+      final controller = newController();
+      await pumpPhotoView(
+        tester,
+        controller: controller,
+        scaleStateController: scaleStateController,
+        minScale: const PhotoViewScale.value(2),
+        maxScale: const PhotoViewScale.value(2),
+      );
+
+      await doubleTapAt(tester, const Offset(350, 200));
+      expect(scaleStateController.scaleState, PhotoViewScaleState.initial);
+      expect(controller.scale, 2);
+
+      await pumpPhotoView(
+        tester,
+        controller: controller,
+        scaleStateController: scaleStateController,
+      );
+      scaleStateController.scaleState = PhotoViewScaleState.covering;
+      await tester.pumpAndSettle();
+      expect(controller.scale, closeToD(4));
+      expect(controller.position, offsetCloseTo(Offset.zero));
+    });
+
+    testWidgets('a cycle that stays on a hand zoom does not leave the focal '
+        'behind', (tester) async {
+      // The double tap writes the step the view is already on, which notifies
+      // no one, so the focal has to go without a listener spending it.
+      final scaleStateController = PhotoViewScaleStateController();
+      addTearDown(scaleStateController.dispose);
+      final controller = newController();
+      await tester.pumpWidget(
+        harness(
+          child: PhotoView(
+            imageProvider: TestImageProvider(image),
+            controller: controller,
+            scaleStateController: scaleStateController,
+            scaleStateCycle: (actual) =>
+                actual.isZooming ? actual : defaultScaleStateCycle(actual),
+          ),
+        ),
+      );
+      await tester.pump();
+      controller.scale = 3;
+      await tester.pumpAndSettle();
+      expect(scaleStateController.scaleState, PhotoViewScaleState.zoomedIn);
+
+      await doubleTapAt(tester, const Offset(350, 200));
+      expect(scaleStateController.scaleState, PhotoViewScaleState.zoomedIn);
+
+      scaleStateController.scaleState = PhotoViewScaleState.covering;
+      await tester.pumpAndSettle();
+      expect(controller.scale, closeToD(4));
+      expect(controller.position, offsetCloseTo(Offset.zero));
+    });
   });
 
   group('scale limits', () {

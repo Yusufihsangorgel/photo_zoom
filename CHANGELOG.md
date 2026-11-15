@@ -14,6 +14,13 @@
   were already complete. `test/short_pan_dead_zone_test.dart` fails on 1.2.3
   with 4.8 px. Not measured on a device.
 
+- A double tap that changes nothing, because every step of the cycle is at the
+  same scale (as with `minScale` equal to `maxScale`), no longer leaves the
+  point it landed on behind. The next `scaleState` set from code was anchored
+  at that point instead of returning the image to its resting place. The new
+  double tap tests in `test/photo_view_test.dart` fail without the change; the
+  one with both limits at 2.0 ends 150 px off centre.
+
 - README: removes the "Used by" line, which named two projects that nothing in
   this repository shows. The example app is described instead.
 - README: the example run command now includes the one-time `flutter create`
