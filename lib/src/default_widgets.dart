@@ -150,7 +150,9 @@ class PhotoViewProgressPainter extends CustomPainter {
         -math.pi / 2,
         sweepAngle,
         false,
-        paint
+        // A copy: a canvas that keeps the paint it was given would otherwise
+        // see the track drawn in the arc's colour.
+        Paint.from(paint)
           ..color = color
           ..strokeCap = StrokeCap.round,
       );
